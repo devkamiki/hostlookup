@@ -1,0 +1,26 @@
+[package]
+name = "hostlookup-native"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/devkamiki/hostlookup"
+
+[lib]
+name = "hostlookup"
+crate-type = ["cdylib"]
+
+[dependencies]
+jni = "0.22.4"
+mhost = { version = "=0.11.3", default-features = false, features = ["app-lib"] }
+serde_json = "1"
+tokio = { version = "1", features = ["rt-multi-thread", "time"] }
+
+[target.'cfg(target_os = "android")'.dependencies]
+ndk-context = "0.1.1"
+rustls-platform-verifier = "0.7"
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
