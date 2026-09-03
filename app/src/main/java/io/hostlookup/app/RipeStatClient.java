@@ -19,10 +19,14 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /** Android-system HTTPS fallback for the same RIPEstat endpoints used by mhost. */
 final class RipeStatClient {
     private static final String BASE = "https://stat.ripe.net/data/";
+    private static final int MAX_ADDRESSES = 24;
+    private static final long DEADLINE_SECONDS = 20;
 
     private RipeStatClient() { }
 
@@ -43,22 +47,43 @@ final class RipeStatClient {
         }
 
         if (addresses.isEmpty()) return new Result(completed, "");
-        int workers = Math.min(6, Math.max(1, addresses.size() * 3));
+        List<String> selectedAddresses = new ArrayList<>(addresses);
+        selectedAddresses.removeIf(address -> present.contains("NetworkInfo\u0000" + address)
+                && present.contains("Whois\u0000" + address)
+                && present.contains("GeoLocation\u0000" + address));
+        Collections.sort(selectedAddresses);
+        if (selectedAddresses.size() > MAX_ADDRESSES) {
+            selectedAddresses = selectedAddresses.subList(0, MAX_ADDRESSES);
+        }
+        int workers = Math.min(6, Math.max(1, selectedAddresses.size() * 3));
         ExecutorService pool = Executors.newFixedThreadPool(workers);
         List<Future<?>> pending = new ArrayList<>();
-        for (String address : addresses) {
+        for (String address : selectedAddresses) {
             schedule(pool, pending, completed, errors, present, "NetworkInfo", "network-info", address);
             schedule(pool, pending, completed, errors, present, "Whois", "whois", address);
             schedule(pool, pending, completed, errors, present, "GeoLocation", "maxmind-geo-lite", address);
         }
-        for (Future<?> future : pending) {
-            try {
-                future.get();
-            } catch (Exception error) {
-                errors.add(readable(error));
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(DEADLINE_SECONDS);
+        try {
+            for (Future<?> future : pending) {
+                long remaining = deadline - System.nanoTime();
+                if (remaining <= 0) {
+                    errors.add("RIPEstat enrichment timed out");
+                    break;
+                }
+                try {
+                    future.get(remaining, TimeUnit.NANOSECONDS);
+                } catch (TimeoutException error) {
+                    errors.add("RIPEstat enrichment timed out");
+                    break;
+                } catch (Exception error) {
+                    errors.add(readable(error));
+                }
             }
+        } finally {
+            for (Future<?> future : pending) future.cancel(true);
+            pool.shutdownNow();
         }
-        pool.shutdownNow();
 
         String message = errors.isEmpty() ? "" : errors.size() + " RIPEstat requests failed";
         return new Result(completed, message);
@@ -93,7 +118,7 @@ final class RipeStatClient {
         connection.setConnectTimeout(8_000);
         connection.setReadTimeout(8_000);
         connection.setRequestProperty("Accept", "application/json");
-        connection.setRequestProperty("User-Agent", "HostLookup/0.1 Android");
+        connection.setRequestProperty("User-Agent", "HostLookup/0.2.0 Android");
         try {
             int status = connection.getResponseCode();
             InputStream stream = status >= 200 && status < 300
