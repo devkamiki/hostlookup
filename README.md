@@ -10,6 +10,12 @@ The app queries all of mhost's predefined UDP resolvers for all 25 supported rec
 
 The interface is built with Jetpack Compose and Material 3 Expressive. It uses dynamic color on Android 12+, the expressive motion scheme and loading indicator, large mobile touch targets, asymmetric shapes, and preserved scroll position across record and WHOIS detail screens.
 
+Address-bearing records include compact infrastructure context inspired by full
+DNS lookup tools: country flags, locations, network prefixes, and autonomous
+system numbers. For `NS` and `MX` records, HostLookup resolves each unique
+nameserver or mail exchanger and enriches those addresses alongside direct `A`
+and `AAAA` answers.
+
 ## Build
 
 Requirements:
@@ -30,7 +36,7 @@ The APK is written to `app/build/outputs/apk/debug/app-debug.apk`.
 
 ## Privacy
 
-DNS queries are sent directly from the phone to mhost's predefined public resolvers. WHOIS/network enrichment is requested from the same RIPEstat endpoints as mhost's `--whois` behavior. The app retains mhost's native result and fills missing Android responses through the platform HTTPS stack. No HostLookup-owned server or analytics service is used.
+DNS record queries are sent directly from the phone to mhost's predefined public resolvers. Nameserver and mail-server address enrichment uses the phone's configured DNS resolver. WHOIS/network enrichment is requested from the same RIPEstat endpoints as mhost's `--whois` behavior. The app retains mhost's native result and fills missing Android responses through the platform HTTPS stack. No HostLookup-owned server or analytics service is used.
 
 The small `rustls-platform-verifier` Android AAR in `app/libs` is the JVM half of mhost's HTTPS certificate verifier. It is bundled from the corresponding Rust crate so RIPEstat requests use Android's system trust decisions.
 
