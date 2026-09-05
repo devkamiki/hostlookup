@@ -1,0 +1,104 @@
+Categories:
+  - Connectivity
+
+License: Apache-2.0
+
+AuthorName: devkamiki
+AuthorEmail: kamiki@disroot.org
+AuthorWebSite: https://github.com/devkamiki
+
+SourceCode: https://github.com/devkamiki/hostlookup
+IssueTracker: https://github.com/devkamiki/hostlookup/issues
+Changelog: https://github.com/devkamiki/hostlookup/releases
+
+# The app sends DNS queries to mhost's fixed list of public resolvers over UDP,
+# TCP, DNS-over-TLS, and DNS-over-HTTPS; UDP/TCP queries are unencrypted.
+# RIPEstat (including its maxmind-geo-lite endpoint) enriches discovered IP
+# addresses. Providers see the queries and the user's public IP address.
+# There is no in-app setting to change the resolver list or data service.
+# Candidate anti-features for packager review:
+#   TetheredNet  – fixed RIPEstat enrichment service
+#   NonFreeNet   – mhost's fixed public resolver list and geolocation data
+# DNS results remain useful without successful enrichment.  Service use alone
+# does not constitute an analytics SDK.
+AntiFeatures:
+  TetheredNet:
+    en-US: >
+      The app enriches discovered IP addresses with network, location, and ASN
+      information from RIPEstat (including the maxmind-geo-lite endpoint) over
+      HTTPS. The resolver list and RIPEstat endpoint cannot be changed in
+      settings. Providers see your requests and public IP address.
+  NonFreeNet:
+    en-US: >
+      DNS queries are sent to mhost's fixed list of predefined public resolvers
+      over UDP, TCP, DNS-over-TLS, and DNS-over-HTTPS. UDP and TCP queries are
+      unencrypted. The resolver list cannot be changed in settings.
+
+RepoType: git
+Repo: https://github.com/devkamiki/hostlookup
+
+Builds:
+  - versionName: '0.2.1'
+    versionCode: 3
+    commit: v0.2.1
+    subdir: app
+    gradle:
+      - release
+    ndk: 28.2.13676358
+
+    # Rust cross-compilation setup.
+    # fdroidserver does not install Rust automatically; the packaging recipe
+    # must install rustup and add both Android targets before the build.
+    # Pin to the tested Rust toolchain.  Replace <RUST_VERSION> with the exact
+    # version confirmed during isolated fdroiddata CI (tested: 1.95.0).
+    sudo:
+      - apt-get update
+      - apt-get install -y curl
+      - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.95.0 --profile minimal
+    init:
+      - source "$HOME/.cargo/env"
+      - rustup target add aarch64-linux-android x86_64-linux-android
+
+    # The Gradle buildRust task calls native/build-android.sh which runs
+    # `cargo build --locked` for both targets.  The build script reads
+    # ANDROID_SDK_ROOT (or ANDROID_HOME) and derives NDK_ROOT from it.
+    # fdroidserver sets ANDROID_SDK_ROOT automatically; NDK 28.2.13676358
+    # must be installed in the build environment.
+    prebuild: source "$HOME/.cargo/env"
+
+    # Exclude the Gradle wrapper jar from the binary scan; it is verified
+    # via distributionSha256Sum in gradle-wrapper.properties.
+    scanignore:
+      - gradle/wrapper/gradle-wrapper.jar
+
+    # The :rustls-platform-verifier-android subproject is vendored Kotlin
+    # source under third_party/; no precompiled binary is used.
+    # native/target/ and app/src/main/jniLibs/ are produced by the build.
+
+MaintainerNotes: |
+  The native library is cross-compiled from Rust source during the Gradle
+  build via native/build-android.sh.  Cargo uses --locked; Cargo.lock is
+  tracked in the repository.  Both arm64-v8a and x86_64 targets are built.
+
+  The JVM half of the TLS certificate verifier (rustls-platform-verifier) is
+  compiled from the vendored Kotlin source in
+  third_party/rustls-platform-verifier-android, pinned to upstream revision
+  996b1c903491641b17b3c9afb65d1352f6fc6b76 (tag v/0.7.0).  The precompiled
+  AAR previously in app/libs/ has been removed.
+
+  The Cargo Android support crate still appears in Cargo.lock but its AAR
+  is not used by Gradle or packaged into the APK.  Disclose this to the
+  scanner as scanignore if flagged.
+
+  Network behaviour: DNS queries go to mhost's fixed public resolver list
+  over UDP, TCP, DoT, and DoH.  IP enrichment uses RIPEstat.  See the
+  AntiFeatures section and docs/FDROID.md in the source tree for details.
+
+  Fastlane store metadata is in fastlane/metadata/android/en-US/.
+  Run `fdroid rewritemeta de.obsp.hostlookup` and
+  `fdroid lint de.obsp.hostlookup` after any edit.
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+CurrentVersion: '0.2.1'
+CurrentVersionCode: 3
