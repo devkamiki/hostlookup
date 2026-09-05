@@ -1,0 +1,1 @@
+Adds infrastructure details for DNS records, including network prefixes, autonomous system numbers, country and location information. Resolves nameserver and mail-server addresses and enriches them with RIPEstat information.

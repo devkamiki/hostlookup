@@ -118,7 +118,7 @@ final class RipeStatClient {
         connection.setConnectTimeout(8_000);
         connection.setReadTimeout(8_000);
         connection.setRequestProperty("Accept", "application/json");
-        connection.setRequestProperty("User-Agent", "HostLookup/0.2.0 Android");
+        connection.setRequestProperty("User-Agent", "HostLookup/0.2.1 Android");
         try {
             int status = connection.getResponseCode();
             InputStream stream = status >= 200 && status < 300

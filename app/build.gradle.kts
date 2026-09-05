@@ -11,8 +11,13 @@ android {
         applicationId = "de.obsp.hostlookup"
         minSdk = 26
         targetSdk = 36
-        versionCode = 2
-        versionName = "0.2.0"
+        versionCode = 3
+        versionName = "0.2.1"
+
+        ndk {
+            // Match the Rust targets; dependencies also ship unsupported 32-bit ABIs.
+            abiFilters += listOf("arm64-v8a", "x86_64")
+        }
     }
 
     compileOptions {
@@ -31,7 +36,7 @@ android {
 
 dependencies {
     // JVM half of rustls-platform-verifier, required by mhost's HTTPS WHOIS client on Android.
-    implementation(files("libs/rustls-platform-verifier-0.1.1.aar"))
+    implementation(project(":rustls-platform-verifier-android"))
     val composeBom = platform("androidx.compose:compose-bom:2026.08.00")
     implementation(composeBom)
     androidTestImplementation(composeBom)
@@ -47,7 +52,7 @@ dependencies {
 val buildRust by tasks.registering(Exec::class) {
     workingDir(rootProject.projectDir)
     commandLine("bash", "native/build-android.sh")
-    inputs.files(fileTree("../native/src"), file("../native/Cargo.toml"), file("../native/build-android.sh"))
+    inputs.files(fileTree("../native/src"), file("../native/Cargo.toml"), file("../native/Cargo.lock"), file("../native/build-android.sh"))
     outputs.dir("src/main/jniLibs")
 }
 

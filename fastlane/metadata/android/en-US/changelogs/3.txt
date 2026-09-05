@@ -1,0 +1,1 @@
+Build the Android certificate verifier from source with its upstream licenses. Restrict APKs to supported ARM64 and x86_64 devices. Lock Rust dependency resolution, verify the Gradle download, and add F-Droid listing metadata, privacy disclosures, and real device screenshots.

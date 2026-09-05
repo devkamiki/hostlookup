@@ -16,3 +16,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "HostLookup"
 include(":app")
+
+include(":rustls-platform-verifier-android")
+project(":rustls-platform-verifier-android").projectDir = file("third_party/rustls-platform-verifier-android")
