@@ -36,8 +36,6 @@ Builds:
     prebuild:
       - rustup default 1.95.0
       - rustup target add aarch64-linux-android x86_64-linux-android
-    scanignore:
-      - gradle/wrapper/gradle-wrapper.jar
     ndk: 28.2.13676358
 
 MaintainerNotes: |
