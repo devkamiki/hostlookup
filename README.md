@@ -63,4 +63,4 @@ attributions and license information are listed in
 
 ## Important notice and disclaimer
 
-I VIBE-CODED THIS. COMPLETELY. EVERY SINGLE LINE OF THIS PROJECT IS WRITTEN BY GPT 5.6 SOL AND OPENCLAW (EXCLUDING THIS ONE). USE IT AT YOUR OWN RISK!
+~~I VIBE-CODED THIS. COMPLETELY. EVERY SINGLE LINE OF THIS PROJECT IS WRITTEN BY GPT 5.6 SOL AND OPENCLAW (EXCLUDING THIS ONE).~~ This is no longer true, but it still involved a lot of LLM-generated codes. I reviewed most of them but not all. USE IT AT YOUR OWN RISK!

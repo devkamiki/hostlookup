@@ -4,4 +4,5 @@
 **/build/
 /native/target/
 /app/src/main/jniLibs/
+/result/
 *.iml
