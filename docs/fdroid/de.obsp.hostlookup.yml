@@ -55,7 +55,7 @@ MaintainerNotes: |
 
   Network behaviour: DNS queries go to mhost's fixed public resolver list
   over UDP, TCP, DoT, and DoH.  IP enrichment uses RIPEstat.  See the
-  AntiFeatures section and docs/FDROID.md in the source tree for details.
+  AntiFeatures section and the README's Privacy section for details.
 
   Fastlane store metadata is in fastlane/metadata/android/en-US/.
   Run `fdroid rewritemeta de.obsp.hostlookup` and

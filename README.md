@@ -50,8 +50,8 @@ also contact certificate authorities for revocation information.
 
 ## F-Droid
 
-See [the submission review and remaining steps](docs/FDROID.md). Store text is
-maintained in `fastlane/metadata/android/en-US`. Build an unsigned release with
+The packaging recipe is in [docs/fdroid/de.obsp.hostlookup.yml](docs/fdroid/de.obsp.hostlookup.yml).
+Store text is maintained in `fastlane/metadata/android/en-US`. Build an unsigned release with
 `./gradlew assembleRelease`; the APK is written to
 `app/build/outputs/apk/release/app-release-unsigned.apk`.
 
