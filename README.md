@@ -1,5 +1,13 @@
 # HostLookup
 
+[<img src="https://f-droid.org/badge/get-it-on.png"
+    alt="Get it on F-Droid"
+    height="80">](https://f-droid.org/packages/de.obsp.hostlookup)
+
+[<img src="https://github.com/ImranR98/Obtainium/blob/main/assets/graphics/badge_obtainium.png?raw=true"
+    alt="Get it on Obtanium"
+    height="80">](https://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/devkamiki/hostlookup)
+
 A native Android DNS explorer built around the same Rust library as `mhost` 0.11.3. It runs the equivalent of:
 
 ```text
