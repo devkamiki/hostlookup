@@ -1,0 +1,14 @@
+HostLookup 是一款由 mhost 驅動的原生 Android DNS 查詢工具。
+
+可查詢 25 種 DNS 紀錄類型，比對預先定義的公共解析器回應，並檢視單筆紀錄。
+還可查看發現的 IP 位址（包括名稱伺服器與郵件伺服器位址）的 WHOIS、網路前置碼、自治系統編號與位置資訊。
+
+應用程式採用 Material 3 介面，在 Android 12 及更新版本支援動態色彩。
+需要 Android 8.0 或更新版本。
+
+DNS 查詢會透過 UDP、TCP、DNS-over-TLS 與 DNS-over-HTTPS 傳送到 mhost 預先定義的公共 DNS 解析器。
+UDP 與 TCP 查詢未加密。名稱伺服器與郵件伺服器位址補充也會使用裝置設定的 DNS 解析器。
+網路與位置資訊會透過 HTTPS 向 RIPEstat 請求。服務商可以看到請求以及你的公網 IP 位址。
+目前無法在設定中更換公共解析器清單與 RIPEstat 服務。
+
+無廣告、無分析 SDK、無需帳號，也不使用 HostLookup 自有伺服器。

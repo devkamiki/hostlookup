@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tagline">DNS-Antworten, klar verglichen</string>
+    <string name="domain_name_label">Domainname</string>
+    <string name="find_dns_records">DNS-Einträge finden</string>
+    <string name="tech_badge">mhost 0.11.3 · 25 Eintragstypen · RIPEstat</string>
+    <string name="recent_lookups">Letzte Abfragen</string>
+
+    <string name="looking_up">Suche nach %s</string>
+    <string name="comparing_providers">Alle verfügbaren Anbieter werden verglichen\nüber 25 DNS-Eintragstypen</string>
+
+    <string name="lookup_cd">Abfrage</string>
+    <string name="overall_result">Gesamtergebnis</string>
+    <string name="result_source">Ergebnisquelle</string>
+    <string name="overall_all_providers">Gesamt · alle Anbieter</string>
+    <string name="resolver_hint">Es werden nur Anbieter mit Antworten angezeigt; doppelte IPv4- und IPv6-Endpunkte sind zusammengefasst.</string>
+    <string name="empty_records_title">Keine Einträge von diesem Anbieter</string>
+    <string name="empty_records_body">Wählen Sie „Gesamt“ oder einen anderen Anbieter.</string>
+    <string name="ttl_seconds_short">TTL %d s</string>
+    <string name="more_records">+ %d weitere</string>
+
+    <string name="whois_ripestat">WHOIS &amp; RIPEstat</string>
+    <string name="ripestat_unavailable">RIPEstat nicht verfügbar</string>
+    <string name="whois_callout_subtitle">Web-, Nameserver- und Mail-Infrastruktur</string>
+    <string name="type_records">%s-Einträge</string>
+
+    <string name="meta_name">Name</string>
+    <string name="meta_ttl">TTL</string>
+    <string name="ttl_seconds">%d Sekunden</string>
+    <string name="meta_response">Antwort</string>
+    <string name="response_ms">%d ms</string>
+    <string name="meta_provider">Anbieter</string>
+    <string name="whois_network">WHOIS &amp; Netzwerk</string>
+    <string name="whois_intro">RIPEstat-Netzwerkinformationen für Web-, Nameserver- und Mailserver-Adressen.</string>
+    <string name="network_details_unavailable">Netzwerkdetails nicht verfügbar</string>
+    <string name="meta_host">Host</string>
+    <string name="meta_network">Netzwerk</string>
+    <string name="meta_prefix">Präfix</string>
+    <string name="meta_location">Standort</string>
+    <string name="back">Zurück</string>
+
+    <string name="lookup_failed">Abfrage fehlgeschlagen</string>
+    <string name="try_again">Erneut versuchen</string>
+    <string name="new_lookup">Neue Abfrage</string>
+    <string name="error_enter_domain">Domainnamen eingeben</string>
+    <string name="error_invalid_domain">Dieser Domainname ist ungültig</string>
+    <string name="error_lookup_engine">Abfrage-Engine konnte nicht gestartet werden: %s</string>
+    <string name="error_create_resolvers">mhost-Resolver konnten nicht erstellt werden: %s</string>
+    <string name="error_invalid_domain_detail">Ungültiger Domainname: %s</string>
+    <string name="error_dns_lookup">DNS-Abfrage fehlgeschlagen: %s</string>
+    <string name="error_ripestat_request">RIPEstat-Anfrage fehlgeschlagen: %s</string>
+    <string name="error_encode_results">Ergebnisse konnten nicht kodiert werden: %s</string>
+    <string name="unknown_resolver">Unbekannt</string>
+
+    <string name="record_type_ns">Autoritative Nameserver für diese Domain.</string>
+    <string name="record_type_a">IPv4-Adressen, um diesen Host zu erreichen.</string>
+    <string name="record_type_aaaa">IPv6-Adressen, um diesen Host zu erreichen.</string>
+    <string name="record_type_cname">Kanonische Aliase, die auf einen anderen Host zeigen.</string>
+    <string name="record_type_mx">Mailserver, die E-Mail für diese Domain empfangen.</string>
+    <string name="record_type_txt">Textdaten zur Eigentums- und E-Mail-Richtlinienprüfung.</string>
+    <string name="record_type_soa">Verwaltungs- und Zeitinformationen für die DNS-Zone.</string>
+    <string name="record_type_caa">Zertifizierungsstellen, die Zertifikate ausstellen dürfen.</string>
+    <string name="record_type_dnskey">Öffentliche Schlüssel zur Prüfung von DNSSEC-Signaturen.</string>
+    <string name="record_type_ds">Delegation-Signer-Einträge, die die DNSSEC-Kette verknüpfen.</string>
+    <string name="record_type_generic">DNS-%s-Antworten des ausgewählten Anbieters.</string>
+
+    <string name="duration_seconds">%1$.1f s</string>
+    <string name="duration_ms">%d ms</string>
+    <string name="ripestat_timeout">RIPEstat-Anreicherung ist abgelaufen</string>
+    <string name="ripestat_kind_error">%1$s für %2$s: %3$s</string>
+
+    <plurals name="records_count">
+        <item quantity="one">%d Eintrag</item>
+        <item quantity="other">%d Einträge</item>
+    </plurals>
+    <plurals name="answers_count">
+        <item quantity="one">%d Antwort</item>
+        <item quantity="other">%d Antworten</item>
+    </plurals>
+    <plurals name="providers_count">
+        <item quantity="one">%d Anbieter</item>
+        <item quantity="other">%d Anbieter</item>
+    </plurals>
+    <plurals name="providers_with_duration">
+        <item quantity="one">%1$d Anbieter · %2$s</item>
+        <item quantity="other">%1$d Anbieter · %2$s</item>
+    </plurals>
+    <plurals name="ip_addresses_enriched">
+        <item quantity="one">%d IP-Adresse angereichert</item>
+        <item quantity="other">%d IP-Adressen angereichert</item>
+    </plurals>
+    <plurals name="ripestat_requests_failed">
+        <item quantity="one">%d RIPEstat-Anfrage fehlgeschlagen</item>
+        <item quantity="other">%d RIPEstat-Anfragen fehlgeschlagen</item>
+    </plurals>
+</resources>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tagline">DNS 回應，清楚比對</string>
+    <string name="domain_name_label">網域名稱</string>
+    <string name="find_dns_records">查詢 DNS 紀錄</string>
+    <string name="tech_badge">mhost 0.11.3 · 25 種紀錄類型 · RIPEstat</string>
+    <string name="recent_lookups">最近查詢</string>
+
+    <string name="looking_up">正在查詢 %s</string>
+    <string name="comparing_providers">正在比對所有可用服務商\n涵蓋 25 種 DNS 紀錄類型</string>
+
+    <string name="lookup_cd">查詢</string>
+    <string name="overall_result">綜合結果</string>
+    <string name="result_source">結果來源</string>
+    <string name="overall_all_providers">綜合 · 全部服務商</string>
+    <string name="resolver_hint">僅顯示有回應的服務商；重複的 IPv4 與 IPv6 端點已合併。</string>
+    <string name="empty_records_title">此服務商沒有傳回紀錄</string>
+    <string name="empty_records_body">請選擇「綜合」或其他服務商。</string>
+    <string name="ttl_seconds_short">TTL %d 秒</string>
+    <string name="more_records">+ 還有 %d 筆</string>
+
+    <string name="whois_ripestat">WHOIS 與 RIPEstat</string>
+    <string name="ripestat_unavailable">RIPEstat 無法使用</string>
+    <string name="whois_callout_subtitle">Web、名稱伺服器與郵件基礎設施</string>
+    <string name="type_records">%s 紀錄</string>
+
+    <string name="meta_name">名稱</string>
+    <string name="meta_ttl">TTL</string>
+    <string name="ttl_seconds">%d 秒</string>
+    <string name="meta_response">回應</string>
+    <string name="response_ms">%d 毫秒</string>
+    <string name="meta_provider">服務商</string>
+    <string name="whois_network">WHOIS 與網路</string>
+    <string name="whois_intro">面向 Web、名稱伺服器與郵件伺服器位址的 RIPEstat 網路資訊。</string>
+    <string name="network_details_unavailable">無法取得網路詳情</string>
+    <string name="meta_host">主機</string>
+    <string name="meta_network">網路</string>
+    <string name="meta_prefix">前綴</string>
+    <string name="meta_location">位置</string>
+    <string name="back">返回</string>
+
+    <string name="lookup_failed">查詢失敗</string>
+    <string name="try_again">重試</string>
+    <string name="new_lookup">新查詢</string>
+    <string name="error_enter_domain">請輸入網域名稱</string>
+    <string name="error_invalid_domain">該網域名稱無效</string>
+    <string name="error_lookup_engine">無法啟動查詢引擎：%s</string>
+    <string name="error_create_resolvers">無法建立 mhost 解析器：%s</string>
+    <string name="error_invalid_domain_detail">網域名稱無效：%s</string>
+    <string name="error_dns_lookup">DNS 查詢失敗：%s</string>
+    <string name="error_ripestat_request">RIPEstat 請求失敗：%s</string>
+    <string name="error_encode_results">無法編碼結果：%s</string>
+    <string name="unknown_resolver">未知</string>
+
+    <string name="record_type_ns">此網域的權威名稱伺服器。</string>
+    <string name="record_type_a">用於連線此主機的 IPv4 位址。</string>
+    <string name="record_type_aaaa">用於連線此主機的 IPv6 位址。</string>
+    <string name="record_type_cname">指向另一主機的正規別名。</string>
+    <string name="record_type_mx">接收此網域電子郵件的郵件伺服器。</string>
+    <string name="record_type_txt">用於所有權驗證與電子郵件政策的文字資料。</string>
+    <string name="record_type_soa">此 DNS 區域的管理與計時資訊。</string>
+    <string name="record_type_caa">獲准簽發憑證的憑證授權單位。</string>
+    <string name="record_type_dnskey">用於驗證 DNSSEC 簽章的公開金鑰。</string>
+    <string name="record_type_ds">連接 DNSSEC 信任鏈的委派簽署者紀錄。</string>
+    <string name="record_type_generic">所選服務商傳回的 DNS %s 回應。</string>
+
+    <string name="duration_seconds">%1$.1f 秒</string>
+    <string name="duration_ms">%d 毫秒</string>
+    <string name="ripestat_timeout">RIPEstat 資訊補充逾時</string>
+    <string name="ripestat_kind_error">%2$s 的 %1$s：%3$s</string>
+
+    <plurals name="records_count">
+        <item quantity="other">%d 筆紀錄</item>
+    </plurals>
+    <plurals name="answers_count">
+        <item quantity="other">%d 筆回應</item>
+    </plurals>
+    <plurals name="providers_count">
+        <item quantity="other">%d 個服務商</item>
+    </plurals>
+    <plurals name="providers_with_duration">
+        <item quantity="other">%1$d 個服務商 · %2$s</item>
+    </plurals>
+    <plurals name="ip_addresses_enriched">
+        <item quantity="other">已補充 %d 個 IP 位址資訊</item>
+    </plurals>
+    <plurals name="ripestat_requests_failed">
+        <item quantity="other">%d 個 RIPEstat 請求失敗</item>
+    </plurals>
+</resources>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tagline">DNSの応答を、わかりやすく比較</string>
+    <string name="domain_name_label">ドメイン名</string>
+    <string name="find_dns_records">DNSレコードを検索</string>
+    <string name="tech_badge">mhost 0.11.3 · 25種類のレコード · RIPEstat</string>
+    <string name="recent_lookups">最近の検索</string>
+
+    <string name="looking_up">%s を検索中</string>
+    <string name="comparing_providers">利用可能なすべてのプロバイダーを比較しています\n25種類のDNSレコードタイプ</string>
+
+    <string name="lookup_cd">検索</string>
+    <string name="overall_result">総合結果</string>
+    <string name="result_source">結果のソース</string>
+    <string name="overall_all_providers">総合 · すべてのプロバイダー</string>
+    <string name="resolver_hint">応答のあるプロバイダーのみ表示されます。重複するIPv4とIPv6のエンドポイントはまとめられています。</string>
+    <string name="empty_records_title">このプロバイダーからのレコードはありません</string>
+    <string name="empty_records_body">「総合」または別のプロバイダーを選択してください。</string>
+    <string name="ttl_seconds_short">TTL %d秒</string>
+    <string name="more_records">+ さらに %d 件</string>
+
+    <string name="whois_ripestat">WHOISとRIPEstat</string>
+    <string name="ripestat_unavailable">RIPEstatを利用できません</string>
+    <string name="whois_callout_subtitle">Web、ネームサーバー、メールのインフラストラクチャ</string>
+    <string name="type_records">%s レコード</string>
+
+    <string name="meta_name">名前</string>
+    <string name="meta_ttl">TTL</string>
+    <string name="ttl_seconds">%d 秒</string>
+    <string name="meta_response">応答</string>
+    <string name="response_ms">%d ミリ秒</string>
+    <string name="meta_provider">プロバイダー</string>
+    <string name="whois_network">WHOISとネットワーク</string>
+    <string name="whois_intro">Web、ネームサーバー、メールサーバーのアドレスに関するRIPEstatのネットワーク情報です。</string>
+    <string name="network_details_unavailable">ネットワークの詳細を取得できません</string>
+    <string name="meta_host">ホスト</string>
+    <string name="meta_network">ネットワーク</string>
+    <string name="meta_prefix">プレフィックス</string>
+    <string name="meta_location">所在地</string>
+    <string name="back">戻る</string>
+
+    <string name="lookup_failed">検索に失敗しました</string>
+    <string name="try_again">再試行</string>
+    <string name="new_lookup">新しい検索</string>
+    <string name="error_enter_domain">ドメイン名を入力してください</string>
+    <string name="error_invalid_domain">そのドメイン名は無効です</string>
+    <string name="error_lookup_engine">検索エンジンを起動できません: %s</string>
+    <string name="error_create_resolvers">mhostリゾルバーを作成できません: %s</string>
+    <string name="error_invalid_domain_detail">無効なドメイン名: %s</string>
+    <string name="error_dns_lookup">DNS検索に失敗しました: %s</string>
+    <string name="error_ripestat_request">RIPEstatリクエストに失敗しました: %s</string>
+    <string name="error_encode_results">結果をエンコードできません: %s</string>
+    <string name="unknown_resolver">不明</string>
+
+    <string name="record_type_ns">このドメインの権威ネームサーバーです。</string>
+    <string name="record_type_a">このホストに到達するためのIPv4アドレスです。</string>
+    <string name="record_type_aaaa">このホストに到達するためのIPv6アドレスです。</string>
+    <string name="record_type_cname">別のホストを指す正規エイリアスです。</string>
+    <string name="record_type_mx">このドメインのメールを受信するメールサーバーです。</string>
+    <string name="record_type_txt">所有権とメールポリシーの確認に使うテキストデータです。</string>
+    <string name="record_type_soa">DNSゾーンの管理およびタイミング情報です。</string>
+    <string name="record_type_caa">証明書の発行が許可された認証局です。</string>
+    <string name="record_type_dnskey">DNSSEC署名の検証に使う公開鍵です。</string>
+    <string name="record_type_ds">DNSSECチェーンをつなぐ委任署名者レコードです。</string>
+    <string name="record_type_generic">選択したプロバイダーが返したDNS %s応答です。</string>
+
+    <string name="duration_seconds">%1$.1f 秒</string>
+    <string name="duration_ms">%d ミリ秒</string>
+    <string name="ripestat_timeout">RIPEstatの情報補完がタイムアウトしました</string>
+    <string name="ripestat_kind_error">%2$s の %1$s: %3$s</string>
+
+    <plurals name="records_count">
+        <item quantity="other">%d 件のレコード</item>
+    </plurals>
+    <plurals name="answers_count">
+        <item quantity="other">%d 件の応答</item>
+    </plurals>
+    <plurals name="providers_count">
+        <item quantity="other">%d 件のプロバイダー</item>
+    </plurals>
+    <plurals name="providers_with_duration">
+        <item quantity="other">%1$d 件のプロバイダー · %2$s</item>
+    </plurals>
+    <plurals name="ip_addresses_enriched">
+        <item quantity="other">%d 件のIPアドレスを補完済み</item>
+    </plurals>
+    <plurals name="ripestat_requests_failed">
+        <item quantity="other">%d 件のRIPEstatリクエストが失敗しました</item>
+    </plurals>
+</resources>

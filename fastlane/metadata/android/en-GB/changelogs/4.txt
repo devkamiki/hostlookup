@@ -1,0 +1,1 @@
+Adds translations for Simplified Chinese, Traditional Chinese, Dutch (Netherlands and Belgium), US and UK English, French, German, Japanese, and Korean. The interface follows the system language.

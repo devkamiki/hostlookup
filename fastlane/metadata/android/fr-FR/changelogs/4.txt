@@ -1,0 +1,1 @@
+Ajout de traductions en chinois simplifié, chinois traditionnel, néerlandais (Pays-Bas et Belgique), anglais américain et britannique, français, allemand, japonais et coréen. L’interface suit la langue du système.

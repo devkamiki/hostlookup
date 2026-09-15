@@ -91,6 +91,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -106,6 +108,7 @@ import org.json.JSONObject
 import java.net.IDN
 import java.net.InetAddress
 import java.nio.charset.StandardCharsets
+import de.obsp.hostlookup.R
 import java.util.Locale
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -165,7 +168,7 @@ private fun HostLookupApp() {
 
     fun startLookup(input: String) {
         val domain = try {
-            normalizeDomain(input)
+            normalizeDomain(input, context)
         } catch (error: IllegalArgumentException) {
             Toast.makeText(context, error.message, Toast.LENGTH_SHORT).show()
             return
@@ -176,10 +179,12 @@ private fun HostLookupApp() {
         screen = Screen.LOADING
         lookupJob = scope.launch {
             try {
+                val appContext = context.applicationContext
+                val unknownResolver = appContext.getString(R.string.unknown_resolver)
                 val lookup = withContext(Dispatchers.IO) {
-                    val parsed = LookupResult.parse(DnsBridge.lookup(domain))
+                    val parsed = LookupResult.parse(DnsBridge.lookup(domain), unknownResolver)
                     parsed.replaceInfrastructureAddresses(resolveInfrastructureHosts(parsed.infrastructureTargets()))
-                    val enrichment = RipeStatClient.complete(parsed.allIpAddresses(), parsed.whoisEntries)
+                    val enrichment = RipeStatClient.complete(appContext, parsed.allIpAddresses(), parsed.whoisEntries)
                     parsed.replaceWhois(enrichment.entries, enrichment.error)
                     parsed
                 }
@@ -190,7 +195,7 @@ private fun HostLookupApp() {
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
-                errorMessage = error.message ?: error.toString()
+                errorMessage = localizedError(context, error.message ?: error.toString())
                 screen = Screen.ERROR
             }
         }
@@ -266,9 +271,9 @@ private fun HomeScreen(onLookup: (String) -> Unit) {
         }
         item {
             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("HostLookup", style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.ExtraBold)
+                Text(stringResource(R.string.app_name), style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.ExtraBold)
                 Text(
-                    "DNS answers, compared clearly",
+                    stringResource(R.string.tagline),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -284,8 +289,8 @@ private fun HomeScreen(onLookup: (String) -> Unit) {
                         value = domain,
                         onValueChange = { domain = it },
                         modifier = Modifier.fillMaxWidth(),
-                        label = { Text("Domain name") },
-                        placeholder = { Text("example.com") },
+                        label = { Text(stringResource(R.string.domain_name_label)) },
+                        placeholder = { Text(stringResource(R.string.domain_placeholder)) },
                         leadingIcon = { Icon(Icons.Default.Public, null) },
                         singleLine = true,
                         shape = MaterialTheme.shapes.medium,
@@ -299,7 +304,7 @@ private fun HomeScreen(onLookup: (String) -> Unit) {
                     ) {
                         Icon(Icons.Default.Search, null)
                         Spacer(Modifier.width(10.dp))
-                        Text("Find DNS records", fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.find_dns_records), fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -312,14 +317,14 @@ private fun HomeScreen(onLookup: (String) -> Unit) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Icon(Icons.Default.Speed, null, modifier = Modifier.size(18.dp))
-                    Text("mhost 0.11.3 · 25 record types · RIPEstat", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.tech_badge), style = MaterialTheme.typography.labelLarge)
                 }
             }
         }
         if (recent.isNotEmpty()) {
             item {
                 Column(Modifier.fillMaxWidth().widthIn(max = 680.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Recent lookups", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.recent_lookups), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         recent.forEach { item -> AssistChip(onClick = { onLookup(item) }, label = { Text(item) }) }
                     }
@@ -337,9 +342,9 @@ private fun LoadingScreen(domain: String) {
             Surface(shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.primaryContainer) {
                 LoadingIndicator(Modifier.padding(24.dp).size(72.dp))
             }
-            Text("Looking up $domain", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.looking_up, domain), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
             Text(
-                "Comparing every available provider\nacross 25 DNS record types",
+                stringResource(R.string.comparing_providers),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -386,13 +391,13 @@ private fun ResultsScreen(
                     )
                     Spacer(Modifier.width(10.dp))
                     FilledIconButton(onClick = { onLookup(domain) }, modifier = Modifier.size(56.dp)) {
-                        Icon(Icons.Default.Search, "Lookup")
+                        Icon(Icons.Default.Search, stringResource(R.string.lookup_cd))
                     }
                 }
             }
             item {
                 SummaryCard(
-                    label = if (selectedResolver == OVERALL) "Overall result" else selectedResolver,
+                    label = if (selectedResolver == OVERALL) stringResource(R.string.overall_result) else selectedResolver,
                     recordCount = records.size,
                     providerCount = result.responders.size,
                     elapsedMs = result.elapsedMs,
@@ -423,9 +428,9 @@ private fun SummaryCard(label: String, recordCount: Int, providerCount: Int, ela
         colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
     ) {
         Column(Modifier.padding(22.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-            Text(label.uppercase(Locale.ROOT), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-            Text("$recordCount records", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.ExtraBold)
-            Text("$providerCount providers · ${formatDuration(elapsedMs)}", color = MaterialTheme.colorScheme.onPrimaryContainer)
+            Text(label.uppercase(Locale.getDefault()), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+            Text(pluralStringResource(R.plurals.records_count, recordCount, recordCount), style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.ExtraBold)
+            Text(pluralStringResource(R.plurals.providers_with_duration, providerCount, providerCount, formatDuration(elapsedMs)), color = MaterialTheme.colorScheme.onPrimaryContainer)
         }
     }
 }
@@ -436,10 +441,10 @@ private fun ResolverPicker(result: LookupResult, selected: String, onSelected: (
     var expanded by remember { mutableStateOf(false) }
     val options = remember(result) { listOf(OVERALL) + result.availableResolvers() }
     Column(Modifier.fillMaxWidth().widthIn(max = 720.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
-        Text("RESULT SOURCE", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+        Text(stringResource(R.string.result_source).uppercase(Locale.getDefault()), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
         ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
             OutlinedTextField(
-                value = if (selected == OVERALL) "Overall · all providers" else "$selected · ${result.recordCountFor(selected)} records",
+                value = resolverOptionLabel(result, selected),
                 onValueChange = {},
                 modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
                 readOnly = true,
@@ -449,14 +454,14 @@ private fun ResolverPicker(result: LookupResult, selected: String, onSelected: (
             DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 options.forEach { option ->
                     DropdownMenuItem(
-                        text = { Text(if (option == OVERALL) "Overall · all providers" else "$option · ${result.recordCountFor(option)} records") },
+                        text = { Text(resolverOptionLabel(result, option)) },
                         onClick = { expanded = false; onSelected(option) },
                     )
                 }
             }
         }
         Text(
-            "Only providers with answers are shown; duplicate IPv4 and IPv6 endpoints are combined.",
+            stringResource(R.string.resolver_hint),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -475,7 +480,7 @@ private fun RecordCard(result: LookupResult, type: String, records: List<Display
                     Text(type, Modifier.padding(horizontal = 12.dp, vertical = 7.dp), fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onTertiaryContainer)
                 }
                 Spacer(Modifier.width(10.dp))
-                Text("${records.size} ${if (records.size == 1) "answer" else "answers"}", modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(pluralStringResource(R.plurals.answers_count, records.size, records.size), modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text("›", style = MaterialTheme.typography.headlineSmall)
             }
             records.take(2).forEach { record ->
@@ -484,8 +489,11 @@ private fun RecordCard(result: LookupResult, type: String, records: List<Display
                 }
                 Text(
                     buildString {
-                        append("TTL ${record.ttl}s")
-                        if (overall) append(" · ${record.resolvers.size} provider${if (record.resolvers.size == 1) "" else "s"}")
+                        append(stringResource(R.string.ttl_seconds_short, record.ttl))
+                        if (overall) {
+                            append(" · ")
+                            append(pluralStringResource(R.plurals.providers_count, record.resolvers.size, record.resolvers.size))
+                        }
                     },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -495,7 +503,7 @@ private fun RecordCard(result: LookupResult, type: String, records: List<Display
                 }
             }
             AnimatedVisibility(records.size > 2) {
-                Text("+ ${records.size - 2} more", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.more_records, records.size - 2), color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -505,8 +513,8 @@ private fun RecordCard(result: LookupResult, type: String, records: List<Display
 private fun EmptyCard() {
     ElevatedCard(Modifier.fillMaxWidth().widthIn(max = 720.dp)) {
         Column(Modifier.padding(22.dp)) {
-            Text("No records from this provider", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-            Text("Choose Overall or another provider.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(R.string.empty_records_title), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.empty_records_body), color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -522,14 +530,18 @@ private fun WhoisCallout(result: LookupResult, onClick: () -> Unit) {
             Icon(Icons.Default.Public, null, modifier = Modifier.size(32.dp))
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
-                Text("WHOIS & RIPESTAT", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.secondary)
+                Text(stringResource(R.string.whois_ripestat).uppercase(Locale.getDefault()), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.secondary)
                 Text(
-                    if (result.whoisEntries.isNotEmpty()) "${result.whoisResourceCount()} IP addresses enriched" else "RIPEstat unavailable",
+                    if (result.whoisEntries.isNotEmpty()) {
+                        pluralStringResource(R.plurals.ip_addresses_enriched, result.whoisResourceCount(), result.whoisResourceCount())
+                    } else {
+                        stringResource(R.string.ripestat_unavailable)
+                    },
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                 )
                 Text(
-                    if (result.whoisEntries.isNotEmpty()) "Web, nameserver and mail infrastructure" else result.whoisError,
+                    if (result.whoisEntries.isNotEmpty()) stringResource(R.string.whois_callout_subtitle) else result.whoisError,
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                 )
             }
@@ -542,7 +554,7 @@ private fun WhoisCallout(result: LookupResult, onClick: () -> Unit) {
 @Composable
 private fun DetailScreen(result: LookupResult, resolver: String, type: String, onBack: () -> Unit) {
     val records = remember(result, resolver, type) { result.recordsFor(resolver).filter { it.type == type } }
-    Scaffold(topBar = { HostTopBar("$type records", onBack) }) { padding ->
+    Scaffold(topBar = { HostTopBar(stringResource(R.string.type_records, type), onBack) }) { padding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
             contentPadding = PaddingValues(14.dp),
@@ -565,10 +577,10 @@ private fun DetailRecordCard(result: LookupResult, record: DisplayRecord) {
     ElevatedCard(Modifier.fillMaxWidth().widthIn(max = 720.dp)) {
         Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             SelectionContainer { Text(record.value, fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.bodyLarge) }
-            MetaRow("Name", record.name)
-            MetaRow("TTL", "${record.ttl} seconds")
-            MetaRow("Response", "${record.responseMs} ms")
-            MetaRow("Provider", record.resolvers.joinToString())
+            MetaRow(stringResource(R.string.meta_name), record.name)
+            MetaRow(stringResource(R.string.meta_ttl), stringResource(R.string.ttl_seconds, record.ttl))
+            MetaRow(stringResource(R.string.meta_response), stringResource(R.string.response_ms, record.responseMs))
+            MetaRow(stringResource(R.string.meta_provider), record.resolvers.joinToString())
             result.insightsFor(record).forEach { insight -> NetworkInsightCard(insight) }
         }
     }
@@ -577,7 +589,7 @@ private fun DetailRecordCard(result: LookupResult, record: DisplayRecord) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun WhoisScreen(result: LookupResult, onBack: () -> Unit) {
-    Scaffold(topBar = { HostTopBar("WHOIS & network", onBack) }) { padding ->
+    Scaffold(topBar = { HostTopBar(stringResource(R.string.whois_network), onBack) }) { padding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
             contentPadding = PaddingValues(14.dp),
@@ -586,7 +598,7 @@ private fun WhoisScreen(result: LookupResult, onBack: () -> Unit) {
         ) {
             item {
                 Text(
-                    "RIPEstat network information for web, nameserver and mail-server addresses.",
+                    stringResource(R.string.whois_intro),
                     modifier = Modifier.fillMaxWidth().widthIn(max = 720.dp).padding(horizontal = 4.dp),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -617,7 +629,7 @@ private fun CompactNetworkRow(insight: IpInsight) {
             Column(Modifier.weight(1f)) {
                 SelectionContainer { Text(insight.address, fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.bodyMedium) }
                 Text(
-                    listOfNotNull(insight.asn.takeIf(String::isNotBlank)?.let { "AS$it" }, insight.countryLabel()).joinToString(" · ").ifBlank { "Network details unavailable" },
+                    listOfNotNull(insight.asn.takeIf(String::isNotBlank)?.let { "AS$it" }, insight.countryLabel()).joinToString(" · ").ifBlank { stringResource(R.string.network_details_unavailable) },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -641,10 +653,10 @@ private fun NetworkInsightCard(insight: IpInsight, hosts: List<String> = emptyLi
                     }
                 }
             }
-            if (hosts.isNotEmpty()) MetaRow("Host", hosts.joinToString("\n"))
-            if (insight.organization.isNotBlank()) MetaRow("Network", insight.organization)
-            if (insight.prefix.isNotBlank()) MetaRow("Prefix", insight.prefix)
-            if (insight.countryLabel().isNotBlank()) MetaRow("Location", listOf(insight.city, insight.countryLabel()).filter(String::isNotBlank).joinToString(", "))
+            if (hosts.isNotEmpty()) MetaRow(stringResource(R.string.meta_host), hosts.joinToString("\n"))
+            if (insight.organization.isNotBlank()) MetaRow(stringResource(R.string.meta_network), insight.organization)
+            if (insight.prefix.isNotBlank()) MetaRow(stringResource(R.string.meta_prefix), insight.prefix)
+            if (insight.countryLabel().isNotBlank()) MetaRow(stringResource(R.string.meta_location), listOf(insight.city, insight.countryLabel()).filter(String::isNotBlank).joinToString(", "))
         }
     }
 }
@@ -662,7 +674,7 @@ private fun MetaRow(label: String, value: String) {
 private fun HostTopBar(title: String, onBack: () -> Unit) {
     TopAppBar(
         title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.Bold) },
-        navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
+        navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back)) } },
         colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest),
     )
 }
@@ -672,11 +684,11 @@ private fun ErrorScreen(domain: String, message: String, onRetry: () -> Unit, on
     Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
         ElevatedCard(modifier = Modifier.fillMaxWidth().widthIn(max = 520.dp), colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.errorContainer)) {
             Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                Text("Lookup failed", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
+                Text(stringResource(R.string.lookup_failed), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
                 Text(domain, fontWeight = FontWeight.Bold)
                 Text(message)
-                Button(onClick = onRetry, modifier = Modifier.fillMaxWidth()) { Text("Try again") }
-                TextButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) { Text("New lookup") }
+                Button(onClick = onRetry, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.try_again)) }
+                TextButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.new_lookup)) }
             }
         }
     }
@@ -804,7 +816,7 @@ private class LookupResult(
     }
 
     companion object {
-        fun parse(raw: String): LookupResult {
+        fun parse(raw: String, unknownResolver: String = "Unknown"): LookupResult {
             val root = JSONObject(raw)
             if (root.has("error")) error(root.optString("error"))
             val records = mutableListOf<RawRecord>()
@@ -813,7 +825,7 @@ private class LookupResult(
             val lookups = root.getJSONObject("lookups").getJSONArray("lookups")
             for (i in 0 until lookups.length()) {
                 val lookup = lookups.getJSONObject(i)
-                val resolver = resolverName(lookup.optString("name_server", "Unknown"))
+                val resolver = resolverName(lookup.optString("name_server", unknownResolver))
                 val response = lookup.optJSONObject("result")?.optJSONObject("Response") ?: continue
                 responders += resolver
                 val responseMs = durationMs(response)
@@ -915,13 +927,13 @@ private fun countryFlag(countryCode: String): String {
     }
 }
 
-private fun normalizeDomain(input: String): String {
+private fun normalizeDomain(input: String, context: Context): String {
     var domain = input.trim().lowercase(Locale.ROOT).replaceFirst(Regex("^[a-z][a-z0-9+.-]*://"), "")
     domain = domain.substringBefore('/').substringBeforeLast(':', domain)
     domain = domain.trimEnd('.')
-    require(domain.isNotBlank()) { "Enter a domain name" }
-    domain = try { IDN.toASCII(domain) } catch (_: Exception) { throw IllegalArgumentException("That domain name is not valid") }
-    require(domain.length <= 253 && domain.matches(Regex("(?i)(?=.{1,253}$)([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)*[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?"))) { "That domain name is not valid" }
+    require(domain.isNotBlank()) { context.getString(R.string.error_enter_domain) }
+    domain = try { IDN.toASCII(domain) } catch (_: Exception) { throw IllegalArgumentException(context.getString(R.string.error_invalid_domain)) }
+    require(domain.length <= 253 && domain.matches(Regex("(?i)(?=.{1,253}$)([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)*[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?"))) { context.getString(R.string.error_invalid_domain) }
     return domain
 }
 
@@ -933,17 +945,50 @@ private fun rememberDomain(context: Context, domain: String) {
 
 private fun recentDomains(context: Context): List<String> = context.getSharedPreferences("hostlookup", Context.MODE_PRIVATE).getStringSet("recent", emptySet()).orEmpty().take(5)
 
-private fun typeDescription(type: String): String = mapOf(
-    "NS" to "Authoritative name servers for this domain.",
-    "A" to "IPv4 addresses used to reach this host.",
-    "AAAA" to "IPv6 addresses used to reach this host.",
-    "CNAME" to "Canonical aliases pointing to another host.",
-    "MX" to "Mail servers receiving email for this domain.",
-    "TXT" to "Text data used for ownership and email-policy verification.",
-    "SOA" to "Administrative and timing information for the DNS zone.",
-    "CAA" to "Certificate authorities permitted to issue certificates.",
-    "DNSKEY" to "Public keys used to validate DNSSEC signatures.",
-    "DS" to "Delegation signer records linking the DNSSEC chain.",
-)[type] ?: "DNS $type responses returned by the selected provider."
+@Composable
+private fun typeDescription(type: String): String {
+    val id = when (type) {
+        "NS" -> R.string.record_type_ns
+        "A" -> R.string.record_type_a
+        "AAAA" -> R.string.record_type_aaaa
+        "CNAME" -> R.string.record_type_cname
+        "MX" -> R.string.record_type_mx
+        "TXT" -> R.string.record_type_txt
+        "SOA" -> R.string.record_type_soa
+        "CAA" -> R.string.record_type_caa
+        "DNSKEY" -> R.string.record_type_dnskey
+        "DS" -> R.string.record_type_ds
+        else -> null
+    }
+    return if (id != null) stringResource(id) else stringResource(R.string.record_type_generic, type)
+}
 
-private fun formatDuration(ms: Long): String = if (ms >= 1000) String.format(Locale.ROOT, "%.1f s", ms / 1000.0) else "$ms ms"
+@Composable
+private fun formatDuration(ms: Long): String =
+    if (ms >= 1000) stringResource(R.string.duration_seconds, ms / 1000.0) else stringResource(R.string.duration_ms, ms)
+
+@Composable
+private fun resolverOptionLabel(result: LookupResult, option: String): String {
+    if (option == OVERALL) return stringResource(R.string.overall_all_providers)
+    val count = result.recordCountFor(option)
+    return "$option · ${pluralStringResource(R.plurals.records_count, count, count)}"
+}
+
+private fun localizedError(context: Context, message: String): String {
+    fun detailAfter(prefix: String): String? {
+        if (!message.startsWith(prefix)) return null
+        return message.removePrefix(prefix).removePrefix(":").trim().ifBlank { message }
+    }
+    return when {
+        message == "Enter a valid domain name" -> context.getString(R.string.error_invalid_domain)
+        else -> {
+            detailAfter("Unable to start lookup engine")?.let { return context.getString(R.string.error_lookup_engine, it) }
+            detailAfter("Unable to create mhost resolvers")?.let { return context.getString(R.string.error_create_resolvers, it) }
+            detailAfter("Invalid domain name")?.let { return context.getString(R.string.error_invalid_domain_detail, it) }
+            detailAfter("DNS lookup failed")?.let { return context.getString(R.string.error_dns_lookup, it) }
+            detailAfter("RIPEstat request failed")?.let { return context.getString(R.string.error_ripestat_request, it) }
+            detailAfter("Unable to encode results")?.let { return context.getString(R.string.error_encode_results, it) }
+            message
+        }
+    }
+}

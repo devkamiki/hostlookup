@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tagline">DNS 应答，清晰对比</string>
+    <string name="domain_name_label">域名</string>
+    <string name="find_dns_records">查找 DNS 记录</string>
+    <string name="tech_badge">mhost 0.11.3 · 25 种记录类型 · RIPEstat</string>
+    <string name="recent_lookups">最近查询</string>
+
+    <string name="looking_up">正在查询 %s</string>
+    <string name="comparing_providers">正在对比所有可用服务商\n覆盖 25 种 DNS 记录类型</string>
+
+    <string name="lookup_cd">查询</string>
+    <string name="overall_result">综合结果</string>
+    <string name="result_source">结果来源</string>
+    <string name="overall_all_providers">综合 · 全部服务商</string>
+    <string name="resolver_hint">仅显示有应答的服务商；重复的 IPv4 和 IPv6 端点已合并。</string>
+    <string name="empty_records_title">此服务商没有返回记录</string>
+    <string name="empty_records_body">请选择“综合”或其他服务商。</string>
+    <string name="ttl_seconds_short">TTL %d 秒</string>
+    <string name="more_records">+ 还有 %d 条</string>
+
+    <string name="whois_ripestat">WHOIS 与 RIPEstat</string>
+    <string name="ripestat_unavailable">RIPEstat 不可用</string>
+    <string name="whois_callout_subtitle">Web、域名服务器与邮件基础设施</string>
+    <string name="type_records">%s 记录</string>
+
+    <string name="meta_name">名称</string>
+    <string name="meta_ttl">TTL</string>
+    <string name="ttl_seconds">%d 秒</string>
+    <string name="meta_response">响应</string>
+    <string name="response_ms">%d 毫秒</string>
+    <string name="meta_provider">服务商</string>
+    <string name="whois_network">WHOIS 与网络</string>
+    <string name="whois_intro">面向 Web、域名服务器和邮件服务器地址的 RIPEstat 网络信息。</string>
+    <string name="network_details_unavailable">无法获取网络详情</string>
+    <string name="meta_host">主机</string>
+    <string name="meta_network">网络</string>
+    <string name="meta_prefix">前缀</string>
+    <string name="meta_location">位置</string>
+    <string name="back">返回</string>
+
+    <string name="lookup_failed">查询失败</string>
+    <string name="try_again">重试</string>
+    <string name="new_lookup">新查询</string>
+    <string name="error_enter_domain">请输入域名</string>
+    <string name="error_invalid_domain">该域名无效</string>
+    <string name="error_lookup_engine">无法启动查询引擎：%s</string>
+    <string name="error_create_resolvers">无法创建 mhost 解析器：%s</string>
+    <string name="error_invalid_domain_detail">域名无效：%s</string>
+    <string name="error_dns_lookup">DNS 查询失败：%s</string>
+    <string name="error_ripestat_request">RIPEstat 请求失败：%s</string>
+    <string name="error_encode_results">无法编码结果：%s</string>
+    <string name="unknown_resolver">未知</string>
+
+    <string name="record_type_ns">此域名的权威名称服务器。</string>
+    <string name="record_type_a">用于访问此主机的 IPv4 地址。</string>
+    <string name="record_type_aaaa">用于访问此主机的 IPv6 地址。</string>
+    <string name="record_type_cname">指向另一主机的规范别名。</string>
+    <string name="record_type_mx">接收此域名电子邮件的邮件服务器。</string>
+    <string name="record_type_txt">用于所有权验证和电子邮件策略的文本数据。</string>
+    <string name="record_type_soa">此 DNS 区域的管理和计时信息。</string>
+    <string name="record_type_caa">获准签发证书的证书颁发机构。</string>
+    <string name="record_type_dnskey">用于验证 DNSSEC 签名的公钥。</string>
+    <string name="record_type_ds">连接 DNSSEC 信任链的委托签名者记录。</string>
+    <string name="record_type_generic">所选服务商返回的 DNS %s 应答。</string>
+
+    <string name="duration_seconds">%1$.1f 秒</string>
+    <string name="duration_ms">%d 毫秒</string>
+    <string name="ripestat_timeout">RIPEstat 信息补充超时</string>
+    <string name="ripestat_kind_error">%2$s 的 %1$s：%3$s</string>
+
+    <plurals name="records_count">
+        <item quantity="other">%d 条记录</item>
+    </plurals>
+    <plurals name="answers_count">
+        <item quantity="other">%d 条应答</item>
+    </plurals>
+    <plurals name="providers_count">
+        <item quantity="other">%d 个服务商</item>
+    </plurals>
+    <plurals name="providers_with_duration">
+        <item quantity="other">%1$d 个服务商 · %2$s</item>
+    </plurals>
+    <plurals name="ip_addresses_enriched">
+        <item quantity="other">已补充 %d 个 IP 地址信息</item>
+    </plurals>
+    <plurals name="ripestat_requests_failed">
+        <item quantity="other">%d 个 RIPEstat 请求失败</item>
+    </plurals>
+</resources>

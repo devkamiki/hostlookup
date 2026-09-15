@@ -1,5 +1,7 @@
 package io.hostlookup.app;
 
+import android.content.Context;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -22,6 +24,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import de.obsp.hostlookup.R;
+
 /** Android-system HTTPS fallback for the same RIPEstat endpoints used by mhost. */
 final class RipeStatClient {
     private static final String BASE = "https://stat.ripe.net/data/";
@@ -30,7 +34,7 @@ final class RipeStatClient {
 
     private RipeStatClient() { }
 
-    static Result complete(Set<String> addresses, List<JSONObject> nativeEntries) {
+    static Result complete(Context context, Set<String> addresses, List<JSONObject> nativeEntries) {
         List<JSONObject> completed = Collections.synchronizedList(new ArrayList<>());
         List<String> errors = Collections.synchronizedList(new ArrayList<>());
         Set<String> present = Collections.synchronizedSet(new HashSet<>());
@@ -59,22 +63,22 @@ final class RipeStatClient {
         ExecutorService pool = Executors.newFixedThreadPool(workers);
         List<Future<?>> pending = new ArrayList<>();
         for (String address : selectedAddresses) {
-            schedule(pool, pending, completed, errors, present, "NetworkInfo", "network-info", address);
-            schedule(pool, pending, completed, errors, present, "Whois", "whois", address);
-            schedule(pool, pending, completed, errors, present, "GeoLocation", "maxmind-geo-lite", address);
+            schedule(context, pool, pending, completed, errors, present, "NetworkInfo", "network-info", address);
+            schedule(context, pool, pending, completed, errors, present, "Whois", "whois", address);
+            schedule(context, pool, pending, completed, errors, present, "GeoLocation", "maxmind-geo-lite", address);
         }
         long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(DEADLINE_SECONDS);
         try {
             for (Future<?> future : pending) {
                 long remaining = deadline - System.nanoTime();
                 if (remaining <= 0) {
-                    errors.add("RIPEstat enrichment timed out");
+                    errors.add(context.getString(R.string.ripestat_timeout));
                     break;
                 }
                 try {
                     future.get(remaining, TimeUnit.NANOSECONDS);
                 } catch (TimeoutException error) {
-                    errors.add("RIPEstat enrichment timed out");
+                    errors.add(context.getString(R.string.ripestat_timeout));
                     break;
                 } catch (Exception error) {
                     errors.add(readable(error));
@@ -85,11 +89,13 @@ final class RipeStatClient {
             pool.shutdownNow();
         }
 
-        String message = errors.isEmpty() ? "" : errors.size() + " RIPEstat requests failed";
+        String message = errors.isEmpty()
+                ? ""
+                : context.getResources().getQuantityString(R.plurals.ripestat_requests_failed, errors.size(), errors.size());
         return new Result(completed, message);
     }
 
-    private static void schedule(ExecutorService pool, List<Future<?>> pending,
+    private static void schedule(Context context, ExecutorService pool, List<Future<?>> pending,
                                  List<JSONObject> completed, List<String> errors, Set<String> present,
                                  String kind, String endpoint, String address) {
         String key = kind + "\u0000" + address;
@@ -106,7 +112,7 @@ final class RipeStatClient {
                 completed.add(wrapper);
                 present.add(key);
             } catch (Exception error) {
-                errors.add(kind + " for " + address + ": " + readable(error));
+                errors.add(context.getString(R.string.ripestat_kind_error, kind, address, readable(error)));
             }
         }));
     }
@@ -118,7 +124,7 @@ final class RipeStatClient {
         connection.setConnectTimeout(8_000);
         connection.setReadTimeout(8_000);
         connection.setRequestProperty("Accept", "application/json");
-        connection.setRequestProperty("User-Agent", "HostLookup/0.2.1 Android");
+        connection.setRequestProperty("User-Agent", "HostLookup/0.2.2 Android");
         try {
             int status = connection.getResponseCode();
             InputStream stream = status >= 200 && status < 300

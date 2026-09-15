@@ -1,0 +1,1 @@
+Verken DNS-records en netwerkinformatie via publieke resolvers

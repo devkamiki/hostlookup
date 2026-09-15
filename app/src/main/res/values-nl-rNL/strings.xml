@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tagline">DNS-antwoorden, helder vergeleken</string>
+    <string name="domain_name_label">Domeinnaam</string>
+    <string name="find_dns_records">DNS-records zoeken</string>
+    <string name="tech_badge">mhost 0.11.3 · 25 recordtypen · RIPEstat</string>
+    <string name="recent_lookups">Recente opzoekingen</string>
+
+    <string name="looking_up">%s opzoeken</string>
+    <string name="comparing_providers">Alle beschikbare providers worden vergeleken\nover 25 DNS-recordtypen</string>
+
+    <string name="lookup_cd">Opzoeken</string>
+    <string name="overall_result">Totaalresultaat</string>
+    <string name="result_source">Resultaatbron</string>
+    <string name="overall_all_providers">Totaal · alle providers</string>
+    <string name="resolver_hint">Alleen providers met antwoorden worden getoond; dubbele IPv4- en IPv6-eindpunten zijn samengevoegd.</string>
+    <string name="empty_records_title">Geen records van deze provider</string>
+    <string name="empty_records_body">Kies Totaal of een andere provider.</string>
+    <string name="ttl_seconds_short">TTL %d s</string>
+    <string name="more_records">+ nog %d</string>
+
+    <string name="whois_ripestat">WHOIS &amp; RIPEstat</string>
+    <string name="ripestat_unavailable">RIPEstat niet beschikbaar</string>
+    <string name="whois_callout_subtitle">Web-, nameserver- en mailinfrastructuur</string>
+    <string name="type_records">%s-records</string>
+
+    <string name="meta_name">Naam</string>
+    <string name="meta_ttl">TTL</string>
+    <string name="ttl_seconds">%d seconden</string>
+    <string name="meta_response">Reactie</string>
+    <string name="response_ms">%d ms</string>
+    <string name="meta_provider">Provider</string>
+    <string name="whois_network">WHOIS &amp; netwerk</string>
+    <string name="whois_intro">RIPEstat-netwerkinformatie voor web-, nameserver- en mailserveradressen.</string>
+    <string name="network_details_unavailable">Netwerkgegevens niet beschikbaar</string>
+    <string name="meta_host">Host</string>
+    <string name="meta_network">Netwerk</string>
+    <string name="meta_prefix">Prefix</string>
+    <string name="meta_location">Locatie</string>
+    <string name="back">Terug</string>
+
+    <string name="lookup_failed">Opzoeken mislukt</string>
+    <string name="try_again">Opnieuw proberen</string>
+    <string name="new_lookup">Nieuwe opzoeking</string>
+    <string name="error_enter_domain">Voer een domeinnaam in</string>
+    <string name="error_invalid_domain">Die domeinnaam is ongeldig</string>
+    <string name="error_lookup_engine">Opzoekengine kan niet worden gestart: %s</string>
+    <string name="error_create_resolvers">mhost-resolvers kunnen niet worden gemaakt: %s</string>
+    <string name="error_invalid_domain_detail">Ongeldige domeinnaam: %s</string>
+    <string name="error_dns_lookup">DNS-opzoeking mislukt: %s</string>
+    <string name="error_ripestat_request">RIPEstat-verzoek mislukt: %s</string>
+    <string name="error_encode_results">Resultaten kunnen niet worden gecodeerd: %s</string>
+    <string name="unknown_resolver">Onbekend</string>
+
+    <string name="record_type_ns">Gezaghebbende nameservers voor dit domein.</string>
+    <string name="record_type_a">IPv4-adressen om deze host te bereiken.</string>
+    <string name="record_type_aaaa">IPv6-adressen om deze host te bereiken.</string>
+    <string name="record_type_cname">Canonieke aliassen die naar een andere host wijzen.</string>
+    <string name="record_type_mx">Mailservers die e-mail voor dit domein ontvangen.</string>
+    <string name="record_type_txt">Tekstgegevens voor eigendoms- en e-mailbeleidverificatie.</string>
+    <string name="record_type_soa">Beheer- en timinginformatie voor de DNS-zone.</string>
+    <string name="record_type_caa">Certificaatautoriteiten die certificaten mogen uitgeven.</string>
+    <string name="record_type_dnskey">Openbare sleutels om DNSSEC-handtekeningen te valideren.</string>
+    <string name="record_type_ds">Delegation-signerrecords die de DNSSEC-keten koppelen.</string>
+    <string name="record_type_generic">DNS-%s-antwoorden van de geselecteerde provider.</string>
+
+    <string name="duration_seconds">%1$.1f s</string>
+    <string name="duration_ms">%d ms</string>
+    <string name="ripestat_timeout">RIPEstat-verrijking is verlopen</string>
+    <string name="ripestat_kind_error">%1$s voor %2$s: %3$s</string>
+
+    <plurals name="records_count">
+        <item quantity="one">%d record</item>
+        <item quantity="other">%d records</item>
+    </plurals>
+    <plurals name="answers_count">
+        <item quantity="one">%d antwoord</item>
+        <item quantity="other">%d antwoorden</item>
+    </plurals>
+    <plurals name="providers_count">
+        <item quantity="one">%d provider</item>
+        <item quantity="other">%d providers</item>
+    </plurals>
+    <plurals name="providers_with_duration">
+        <item quantity="one">%1$d provider · %2$s</item>
+        <item quantity="other">%1$d providers · %2$s</item>
+    </plurals>
+    <plurals name="ip_addresses_enriched">
+        <item quantity="one">%d IP-adres verrijkt</item>
+        <item quantity="other">%d IP-adressen verrijkt</item>
+    </plurals>
+    <plurals name="ripestat_requests_failed">
+        <item quantity="one">%d RIPEstat-verzoek mislukt</item>
+        <item quantity="other">%d RIPEstat-verzoeken mislukt</item>
+    </plurals>
+</resources>

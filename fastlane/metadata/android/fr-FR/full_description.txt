@@ -1,0 +1,22 @@
+HostLookup est un explorateur DNS Android natif propulsé par mhost.
+
+Interrogez 25 types d’enregistrements DNS, comparez les réponses des résolveurs
+publics prédéfinis et inspectez les enregistrements un par un. Consultez le WHOIS,
+les préfixes réseau, les numéros de système autonome et les informations de
+localisation des adresses IP découvertes, y compris celles des serveurs de noms
+et des serveurs de messagerie.
+
+L’application utilise une interface Material 3 avec couleur dynamique sur
+Android 12 et versions ultérieures. Android 8.0 ou plus récent est requis.
+
+Les requêtes DNS sont envoyées aux résolveurs DNS publics prédéfinis de mhost
+via UDP, TCP, DNS-over-TLS et DNS-over-HTTPS. Les requêtes UDP et TCP ne sont
+pas chiffrées. L’enrichissement des adresses des serveurs de noms et de
+messagerie utilise aussi le résolveur DNS configuré sur l’appareil. Les
+informations réseau et de localisation sont demandées à RIPEstat via HTTPS.
+Les fournisseurs peuvent voir les requêtes et votre adresse IP publique.
+La liste des résolveurs publics et le service RIPEstat ne peuvent pas être
+remplacés dans les paramètres.
+
+Aucune publicité, aucun SDK d’analyse, aucun compte ni serveur exploité par
+HostLookup n’est utilisé.

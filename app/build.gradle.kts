@@ -11,8 +11,8 @@ android {
         applicationId = "de.obsp.hostlookup"
         minSdk = 26
         targetSdk = 36
-        versionCode = 3
-        versionName = "0.2.1"
+        versionCode = 4
+        versionName = "0.2.2"
 
         ndk {
             // Match the Rust targets; dependencies also ship unsupported 32-bit ABIs.

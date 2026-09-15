@@ -59,7 +59,7 @@ also contact certificate authorities for revocation information.
 ## F-Droid
 
 The packaging recipe is in [docs/fdroid/de.obsp.hostlookup.yml](docs/fdroid/de.obsp.hostlookup.yml).
-Store text is maintained in `fastlane/metadata/android/en-US`. Build an unsigned release with
+Store text is maintained in `fastlane/metadata/android`. Build an unsigned release with
 `./gradlew assembleRelease`; the APK is written to
 `app/build/outputs/apk/release/app-release-unsigned.apk`.
 
