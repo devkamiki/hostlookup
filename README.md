@@ -61,7 +61,16 @@ also contact certificate authorities for revocation information.
 The packaging recipe is in [docs/fdroid/de.obsp.hostlookup.yml](docs/fdroid/de.obsp.hostlookup.yml).
 Store text is maintained in `fastlane/metadata/android`. Build an unsigned release with
 `./gradlew assembleRelease`; the APK is written to
-`app/build/outputs/apk/release/app-release-unsigned.apk`.
+`app/build/outputs/apk/release/app-release-unsigned.apk`. GitHub releases must be
+16 KiB-aligned and signed with the HostLookup release key before upload:
+
+```bash
+./gradlew assembleRelease
+scripts/sign-release.sh
+```
+
+`scripts/sign-release.sh` reads `~/.config/hostlookup/keystore.properties` and
+writes `app/build/outputs/apk/release/HostLookup-<version>.apk`.
 
 ## License
 

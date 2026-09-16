@@ -22,6 +22,7 @@ AutoName: HostLookup
 
 RepoType: git
 Repo: https://github.com/devkamiki/hostlookup
+Binaries: https://github.com/devkamiki/hostlookup/releases/download/v%v/HostLookup-%v.apk
 
 Builds:
   - versionName: 0.2.1
@@ -32,11 +33,17 @@ Builds:
       - apt-get update
       - apt-get install -y gcc libc-dev rustup
     gradle:
-      - release
+      - yes
+    srclibs:
+      - reproducible-apk-tools@v0.3.0
     prebuild:
       - rustup default 1.95.0
       - rustup target add aarch64-linux-android x86_64-linux-android
     ndk: 28.2.13676358
+    postbuild:
+      - mv $$OUT$$ unaligned.apk
+      - $$reproducible-apk-tools$$/zipalign.py --page-size 16 --pad-like-apksigner
+        --replace unaligned.apk $$OUT$$
   - versionName: 0.2.2
     versionCode: 4
     commit: v0.2.2
@@ -45,11 +52,19 @@ Builds:
       - apt-get update
       - apt-get install -y gcc libc-dev rustup
     gradle:
-      - release
+      - yes
+    srclibs:
+      - reproducible-apk-tools@v0.3.0
     prebuild:
       - rustup default 1.95.0
       - rustup target add aarch64-linux-android x86_64-linux-android
     ndk: 28.2.13676358
+    postbuild:
+      - mv $$OUT$$ unaligned.apk
+      - $$reproducible-apk-tools$$/zipalign.py --page-size 16 --pad-like-apksigner
+        --replace unaligned.apk $$OUT$$
+
+AllowedAPKSigningKeys: 9e3898a2aa7424df7c08938f0a4250e3b40751f22a12decfdb394590b8fbcc56
 
 MaintainerNotes: |
   The native library is cross-compiled from Rust source during the Gradle
@@ -74,6 +89,10 @@ MaintainerNotes: |
   listings for en-US, en-GB, zh-CN, zh-TW, nl-NL, nl-BE, fr-FR, de-DE,
   ja-JP, and ko-KR.  Run `fdroid rewritemeta de.obsp.hostlookup` and
   `fdroid lint de.obsp.hostlookup` after any edit.
+
+  GitHub APKs are 16 KiB-aligned with reproducible-apk-tools zipalign.py
+  and signed with apksigner using the HostLookup release key.  Do not
+  upload assembleRelease unsigned output.
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
