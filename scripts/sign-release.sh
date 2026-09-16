@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # Align and sign assembleRelease output the same way F-Droid expects:
 # 16 KiB page alignment with apksigner-style padding, then v1/v2/v3 signing.
+#
+# Build the unsigned APK first with CARGO_HOME=/home/vagrant/.cargo so
+# libhostlookup.so panic paths match F-Droid's builder.
 set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"

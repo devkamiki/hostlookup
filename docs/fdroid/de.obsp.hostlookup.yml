@@ -92,7 +92,9 @@ MaintainerNotes: |
 
   GitHub APKs are 16 KiB-aligned with reproducible-apk-tools zipalign.py
   and signed with apksigner using the HostLookup release key.  Do not
-  upload assembleRelease unsigned output.
+  upload assembleRelease unsigned output.  Native builds must use
+  CARGO_HOME=/home/vagrant/.cargo so crate paths in libhostlookup.so
+  match this builder.
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags

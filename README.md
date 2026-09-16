@@ -65,10 +65,14 @@ Store text is maintained in `fastlane/metadata/android`. Build an unsigned relea
 16 KiB-aligned and signed with the HostLookup release key before upload:
 
 ```bash
+export CARGO_HOME=/home/vagrant/.cargo
 ./gradlew assembleRelease
 scripts/sign-release.sh
 ```
 
+F-Droid's builder uses `HOME=/home/vagrant`, so panic paths inside
+`libhostlookup.so` are `/home/vagrant/.cargo/registry/...`. Release builds
+must use that same `CARGO_HOME` or the native library will not match.
 `scripts/sign-release.sh` reads `~/.config/hostlookup/keystore.properties` and
 writes `app/build/outputs/apk/release/HostLookup-<version>.apk`.
 
