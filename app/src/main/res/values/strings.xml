@@ -71,6 +71,10 @@
     <string name="duration_ms">%d ms</string>
     <string name="ripestat_timeout">RIPEstat enrichment timed out</string>
     <string name="ripestat_kind_error">%1$s for %2$s: %3$s</string>
+    <string name="lookup_channel">Lookups</string>
+    <string name="lookup_notification_body">Comparing DNS providers</string>
+    <string name="enrichment_notification_body">Adding locations and network details</string>
+    <string name="enrichment_loading">Loading network details…</string>
 
     <plurals name="records_count">
         <item quantity="one">%d record</item>

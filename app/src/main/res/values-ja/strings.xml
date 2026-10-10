@@ -69,6 +69,10 @@
     <string name="ripestat_timeout">RIPEstatの情報補完がタイムアウトしました</string>
     <string name="ripestat_kind_error">%2$s の %1$s: %3$s</string>
 
+    <string name="lookup_channel">検索</string>
+    <string name="lookup_notification_body">DNSプロバイダーを比較しています</string>
+    <string name="enrichment_notification_body">位置とネットワーク情報を追加しています</string>
+    <string name="enrichment_loading">ネットワーク情報を読み込み中…</string>
     <plurals name="records_count">
         <item quantity="other">%d 件のレコード</item>
     </plurals>

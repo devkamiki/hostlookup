@@ -69,6 +69,10 @@
     <string name="ripestat_timeout">RIPEstat 信息补充超时</string>
     <string name="ripestat_kind_error">%2$s 的 %1$s：%3$s</string>
 
+    <string name="lookup_channel">查询</string>
+    <string name="lookup_notification_body">正在比较 DNS 提供商</string>
+    <string name="enrichment_notification_body">正在补充位置和网络信息</string>
+    <string name="enrichment_loading">正在加载网络详情…</string>
     <plurals name="records_count">
         <item quantity="other">%d 条记录</item>
     </plurals>

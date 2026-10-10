@@ -11,9 +11,10 @@ Android 8.0 of nieuwer is vereist.
 DNS-query's worden via UDP, TCP, DNS-over-TLS en DNS-over-HTTPS naar de vooraf
 gedefinieerde publieke DNS-resolvers van mhost gestuurd. UDP- en TCP-query's zijn
 niet versleuteld. Verrijking van nameserver- en mailserveradressen gebruikt ook de
-geconfigureerde DNS-resolver van het toestel. Netwerk- en locatiegegevens worden
-via HTTPS bij RIPEstat opgevraagd. Aanbieders kunnen verzoeken en je publieke
-IP-adres zien. De lijst met publieke resolvers en de RIPEstat-dienst kunnen niet
-in de instellingen worden vervangen.
+geconfigureerde DNS-resolver van het toestel. Netwerkgegevens worden via HTTPS
+bij RIPEstat opgevraagd. Als RIPEstat geen land heeft, volgt de locatie via
+DB-IP en ipwho.is. Aanbieders kunnen verzoeken en je publieke IP-adres zien.
+De lijst met publieke resolvers en deze diensten kunnen niet in de instellingen
+worden vervangen. Een zoekopdracht gaat door als je de app verlaat.
 
 Er worden geen advertenties, analytics-SDK's, accounts of HostLookup-eigen servers gebruikt.

@@ -69,6 +69,10 @@
     <string name="ripestat_timeout">RIPEstat-verrijking is verlopen</string>
     <string name="ripestat_kind_error">%1$s voor %2$s: %3$s</string>
 
+    <string name="lookup_channel">Opzoekingen</string>
+    <string name="lookup_notification_body">DNS-providers vergelijken</string>
+    <string name="enrichment_notification_body">Locaties en netwerkdetails toevoegen</string>
+    <string name="enrichment_loading">Netwerkdetails laden…</string>
     <plurals name="records_count">
         <item quantity="one">%d record</item>
         <item quantity="other">%d records</item>

@@ -10,8 +10,10 @@ Android 8.0 or newer is required.
 
 DNS queries are sent to mhost's predefined public DNS resolvers over UDP, TCP,
 DNS-over-TLS, and DNS-over-HTTPS. UDP and TCP queries are unencrypted. Name-server and mail-server address enrichment also uses the device's
-configured DNS resolver. Network and location information is requested from
-RIPEstat over HTTPS. Providers can see requests and your public IP address.
-The public resolver list and RIPEstat service cannot be replaced in settings.
+configured DNS resolver. Network information is requested from RIPEstat over
+HTTPS. When RIPEstat has no country, location falls back to DB-IP and ipwho.is.
+Providers can see requests and your public IP address. The public resolver list
+and these services cannot be replaced in settings. A lookup keeps running if
+you leave the app.
 
 No ads, analytics SDKs, account, or HostLookup-operated server are used.

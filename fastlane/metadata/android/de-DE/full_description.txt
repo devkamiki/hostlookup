@@ -12,10 +12,11 @@ DNS-Abfragen werden über UDP, TCP, DNS-over-TLS und DNS-over-HTTPS an die
 vordefinierten öffentlichen DNS-Resolver von mhost gesendet. UDP- und
 TCP-Abfragen sind unverschlüsselt. Die Anreicherung von Nameserver- und
 Mailserver-Adressen verwendet außerdem den auf dem Gerät konfigurierten
-DNS-Resolver. Netzwerk- und Standortinformationen werden per HTTPS von
-RIPEstat angefordert. Anbieter können Anfragen und Ihre öffentliche IP-Adresse
-sehen. Die Liste der öffentlichen Resolver und der RIPEstat-Dienst können in
-den Einstellungen nicht ersetzt werden.
+DNS-Resolver. Netzwerkinformationen werden per HTTPS von RIPEstat angefordert.
+Fehlt dort ein Land, wird der Standort bei DB-IP und ipwho.is nachgefragt.
+Anbieter können Anfragen und Ihre öffentliche IP-Adresse sehen. Die Liste der
+öffentlichen Resolver und diese Dienste können in den Einstellungen nicht
+ersetzt werden. Eine Abfrage läuft weiter, wenn Sie die App verlassen.
 
 Es werden keine Werbung, keine Analyse-SDKs, kein Konto und kein von
 HostLookup betriebener Server verwendet.

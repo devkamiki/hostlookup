@@ -13,10 +13,11 @@ Les requêtes DNS sont envoyées aux résolveurs DNS publics prédéfinis de mho
 via UDP, TCP, DNS-over-TLS et DNS-over-HTTPS. Les requêtes UDP et TCP ne sont
 pas chiffrées. L’enrichissement des adresses des serveurs de noms et de
 messagerie utilise aussi le résolveur DNS configuré sur l’appareil. Les
-informations réseau et de localisation sont demandées à RIPEstat via HTTPS.
-Les fournisseurs peuvent voir les requêtes et votre adresse IP publique.
-La liste des résolveurs publics et le service RIPEstat ne peuvent pas être
-remplacés dans les paramètres.
+informations réseau sont demandées à RIPEstat via HTTPS. Si RIPEstat n’a pas
+de pays, la localisation passe par DB-IP puis ipwho.is. Les fournisseurs
+peuvent voir les requêtes et votre adresse IP publique. La liste des
+résolveurs publics et ces services ne peuvent pas être remplacés dans les
+paramètres. Une recherche continue si vous quittez l’application.
 
 Aucune publicité, aucun SDK d’analyse, aucun compte ni serveur exploité par
 HostLookup n’est utilisé.

@@ -44,17 +44,18 @@ The APK is written to `app/build/outputs/apk/debug/app-debug.apk`.
 
 ## Privacy
 
-DNS record queries are sent directly from the phone to mhost's predefined public resolvers. Nameserver and mail-server address enrichment uses the phone's configured DNS resolver. WHOIS/network enrichment is requested from the same RIPEstat endpoints as mhost's `--whois` behavior. The app retains mhost's native result and fills missing Android responses through the platform HTTPS stack. No HostLookup-owned server or analytics service is used.
+DNS record queries are sent directly from the phone to mhost's predefined public resolvers. Nameserver and mail-server address enrichment uses the phone's configured DNS resolver. WHOIS, prefix, and ASN data come from RIPEstat. Location uses RIPEstat's MaxMind and geoloc datasets, then DB-IP and ipwho.is when RIPEstat has no country. Lookups keep running if you leave the app, and DNS records are shown while network details are still loading. No HostLookup-owned server or analytics service is used.
 
 The JVM half of mhost's HTTPS certificate verifier is compiled from the pinned
 Kotlin source in `third_party/rustls-platform-verifier-android`. RIPEstat
 requests use Android's system trust decisions.
 
 Public DNS queries use UDP, TCP, DNS-over-TLS, and DNS-over-HTTPS.
-UDP and TCP queries are unencrypted. DNS providers and RIPEstat receive your
-public IP address and the queries sent to them. The resolver list and RIPEstat
-endpoint cannot currently be changed in settings. Certificate validation may
-also contact certificate authorities for revocation information.
+UDP and TCP queries are unencrypted. DNS providers, RIPEstat, and any location
+fallback (DB-IP or ipwho.is) receive your public IP address and the addresses
+being looked up. The resolver list and these endpoints cannot currently be
+changed in settings. Certificate validation may also contact certificate
+authorities for revocation information.
 
 ## F-Droid
 

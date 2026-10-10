@@ -80,6 +80,8 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.expressiveLightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -98,11 +100,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.IDN
@@ -163,8 +161,39 @@ private fun HostLookupApp() {
     var detailType by rememberSaveable { mutableStateOf("") }
     var activeDomain by rememberSaveable { mutableStateOf("") }
     var errorMessage by rememberSaveable { mutableStateOf("") }
-    var lookupJob by remember { mutableStateOf<Job?>(null) }
+    var session by remember { mutableStateOf(LookupSession.snapshot) }
     val resultsListState = rememberLazyListState()
+    val enriching = session.phase == LookupSession.Phase.ENRICHING && session.domain == result?.domain
+
+    DisposableEffect(Unit) {
+        val listener = LookupSession.Listener { session = it }
+        LookupSession.addListener(listener)
+        onDispose { LookupSession.removeListener(listener) }
+    }
+
+    LaunchedEffect(session.generation, session.revision) {
+        when (session.phase) {
+            LookupSession.Phase.RUNNING -> {
+                activeDomain = session.domain
+                if (screen == Screen.HOME || screen == Screen.ERROR || screen == Screen.LOADING) {
+                    screen = Screen.LOADING
+                }
+            }
+            LookupSession.Phase.ENRICHING, LookupSession.Phase.DONE -> {
+                val lookup = session.result ?: return@LaunchedEffect
+                result = lookup
+                activeDomain = lookup.domain
+                if (screen == Screen.LOADING || screen == Screen.ERROR) screen = Screen.RESULTS
+            }
+            LookupSession.Phase.FAILED -> {
+                if (screen == Screen.LOADING || screen == Screen.ERROR) {
+                    errorMessage = localizedError(context, session.error.ifBlank { context.getString(R.string.lookup_failed) })
+                    screen = Screen.ERROR
+                }
+            }
+            LookupSession.Phase.IDLE -> Unit
+        }
+    }
 
     fun startLookup(input: String) {
         val domain = try {
@@ -173,41 +202,28 @@ private fun HostLookupApp() {
             Toast.makeText(context, error.message, Toast.LENGTH_SHORT).show()
             return
         }
-        lookupJob?.cancel()
         activeDomain = domain
         scope.launch { resultsListState.scrollToItem(0) }
+        selectedResolver = OVERALL
         screen = Screen.LOADING
-        lookupJob = scope.launch {
-            try {
-                val appContext = context.applicationContext
-                val unknownResolver = appContext.getString(R.string.unknown_resolver)
-                val lookup = withContext(Dispatchers.IO) {
-                    val parsed = LookupResult.parse(DnsBridge.lookup(domain), unknownResolver)
-                    parsed.replaceInfrastructureAddresses(resolveInfrastructureHosts(parsed.infrastructureTargets()))
-                    val enrichment = RipeStatClient.complete(appContext, parsed.allIpAddresses(), parsed.whoisEntries)
-                    parsed.replaceWhois(enrichment.entries, enrichment.error)
-                    parsed
-                }
-                result = lookup
-                selectedResolver = OVERALL
-                rememberDomain(context, domain)
-                screen = Screen.RESULTS
-            } catch (error: CancellationException) {
-                throw error
-            } catch (error: Exception) {
-                errorMessage = localizedError(context, error.message ?: error.toString())
-                screen = Screen.ERROR
-            }
+        try {
+            LookupSession.start(context, domain)
+        } catch (error: Exception) {
+            errorMessage = localizedError(context, error.message ?: error.toString())
+            screen = Screen.ERROR
         }
     }
 
+    fun leaveLookup() {
+        screen = Screen.HOME
+        LookupSession.cancel(context)
+    }
+
     fun navigateBack() {
-        if (screen == Screen.LOADING) lookupJob?.cancel()
-        screen = when (screen) {
-            Screen.DETAIL, Screen.WHOIS -> Screen.RESULTS
-            Screen.RESULTS, Screen.ERROR -> Screen.HOME
-            Screen.LOADING -> Screen.HOME
-            Screen.HOME -> Screen.HOME
+        when (screen) {
+            Screen.DETAIL, Screen.WHOIS -> screen = Screen.RESULTS
+            Screen.RESULTS, Screen.ERROR, Screen.LOADING -> leaveLookup()
+            Screen.HOME -> Unit
         }
     }
 
@@ -226,9 +242,10 @@ private fun HostLookupApp() {
                     result = lookup,
                     listState = resultsListState,
                     selectedResolver = selectedResolver,
+                    enriching = enriching,
                     onResolverSelected = { selectedResolver = it },
                     onLookup = ::startLookup,
-                    onBack = { screen = Screen.HOME },
+                    onBack = ::leaveLookup,
                     onRecordType = { detailType = it; screen = Screen.DETAIL },
                     onWhois = { screen = Screen.WHOIS },
                 )
@@ -236,12 +253,12 @@ private fun HostLookupApp() {
             Screen.DETAIL -> result?.let {
                 DetailScreen(it, selectedResolver, detailType) { screen = Screen.RESULTS }
             }
-            Screen.WHOIS -> result?.let { WhoisScreen(it) { screen = Screen.RESULTS } }
+            Screen.WHOIS -> result?.let { WhoisScreen(it, enriching) { screen = Screen.RESULTS } }
             Screen.ERROR -> ErrorScreen(
                 domain = activeDomain,
                 message = errorMessage,
                 onRetry = { startLookup(activeDomain) },
-                onBack = { screen = Screen.HOME },
+                onBack = ::leaveLookup,
             )
         }
     }
@@ -361,6 +378,7 @@ private fun ResultsScreen(
     onResolverSelected: (String) -> Unit,
     onLookup: (String) -> Unit,
     onBack: () -> Unit,
+    enriching: Boolean,
     onRecordType: (String) -> Unit,
     onWhois: () -> Unit,
 ) {
@@ -413,8 +431,8 @@ private fun ResultsScreen(
                     item(key = type) { RecordCard(result, type, grouped.getValue(type), selectedResolver == OVERALL) { onRecordType(type) } }
                 }
             }
-            if (selectedResolver == OVERALL && (result.whoisEntries.isNotEmpty() || result.whoisError.isNotEmpty())) {
-                item { WhoisCallout(result, onWhois) }
+            if (selectedResolver == OVERALL && (enriching || result.whoisEntries.isNotEmpty() || result.whoisError.isNotEmpty())) {
+                item { WhoisCallout(result, enriching, onWhois) }
             }
         }
     }
@@ -520,7 +538,7 @@ private fun EmptyCard() {
 }
 
 @Composable
-private fun WhoisCallout(result: LookupResult, onClick: () -> Unit) {
+private fun WhoisCallout(result: LookupResult, enriching: Boolean, onClick: () -> Unit) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth().widthIn(max = 720.dp).then(if (result.whoisEntries.isNotEmpty()) Modifier.clickable(onClick = onClick) else Modifier),
         colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
@@ -532,16 +550,21 @@ private fun WhoisCallout(result: LookupResult, onClick: () -> Unit) {
             Column(Modifier.weight(1f)) {
                 Text(stringResource(R.string.whois_ripestat).uppercase(Locale.getDefault()), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.secondary)
                 Text(
-                    if (result.whoisEntries.isNotEmpty()) {
-                        pluralStringResource(R.plurals.ip_addresses_enriched, result.whoisResourceCount(), result.whoisResourceCount())
-                    } else {
-                        stringResource(R.string.ripestat_unavailable)
+                    when {
+                        result.whoisEntries.isNotEmpty() -> pluralStringResource(R.plurals.ip_addresses_enriched, result.whoisResourceCount(), result.whoisResourceCount())
+                        enriching -> stringResource(R.string.enrichment_loading)
+                        else -> stringResource(R.string.ripestat_unavailable)
                     },
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                 )
                 Text(
-                    if (result.whoisEntries.isNotEmpty()) stringResource(R.string.whois_callout_subtitle) else result.whoisError,
+                    when {
+                        result.whoisEntries.isNotEmpty() && !enriching -> stringResource(R.string.whois_callout_subtitle)
+                        result.whoisEntries.isEmpty() && enriching -> stringResource(R.string.whois_callout_subtitle)
+                        enriching -> stringResource(R.string.enrichment_loading)
+                        else -> result.whoisError
+                    },
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                 )
             }
@@ -588,7 +611,7 @@ private fun DetailRecordCard(result: LookupResult, record: DisplayRecord) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun WhoisScreen(result: LookupResult, onBack: () -> Unit) {
+private fun WhoisScreen(result: LookupResult, enriching: Boolean, onBack: () -> Unit) {
     Scaffold(topBar = { HostTopBar(stringResource(R.string.whois_network), onBack) }) { padding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
@@ -603,7 +626,15 @@ private fun WhoisScreen(result: LookupResult, onBack: () -> Unit) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            if (result.whoisError.isNotBlank()) {
+            if (enriching) {
+                item {
+                    Text(
+                        stringResource(R.string.enrichment_loading),
+                        modifier = Modifier.fillMaxWidth().widthIn(max = 720.dp).padding(horizontal = 4.dp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            } else if (result.whoisError.isNotBlank()) {
                 item {
                     Surface(color = MaterialTheme.colorScheme.errorContainer, shape = MaterialTheme.shapes.medium) {
                         Text(result.whoisError, Modifier.fillMaxWidth().padding(16.dp), color = MaterialTheme.colorScheme.onErrorContainer)
@@ -701,7 +732,7 @@ private val TYPE_ORDER = listOf(
     "PTR", "HINFO", "ANAME", "OPENPGPKEY", "NULL",
 )
 
-private data class RawRecord(
+internal data class RawRecord(
     val type: String,
     val name: String,
     val ttl: Long,
@@ -711,7 +742,7 @@ private data class RawRecord(
     val responseMs: Long,
 )
 
-private data class DisplayRecord(
+internal data class DisplayRecord(
     val type: String,
     val name: String,
     var ttl: Long,
@@ -721,7 +752,7 @@ private data class DisplayRecord(
     val resolvers: LinkedHashSet<String> = linkedSetOf(),
 )
 
-private data class IpInsight(
+internal data class IpInsight(
     val address: String,
     val asn: String = "",
     val prefix: String = "",
@@ -730,12 +761,12 @@ private data class IpInsight(
     val organization: String = "",
 ) {
     fun countryLabel(): String {
-        if (!countryCode.matches(Regex("[A-Za-z]{2}"))) return ""
+        if (!usableCountry(countryCode)) return ""
         return Locale.Builder().setRegion(countryCode.uppercase(Locale.ROOT)).build().displayCountry
     }
 }
 
-private class LookupResult(
+internal class LookupResult(
     val domain: String,
     val elapsedMs: Long,
     private val records: List<RawRecord>,
@@ -770,6 +801,11 @@ private class LookupResult(
     fun replaceInfrastructureAddresses(values: Map<String, List<String>>) { infrastructureAddresses.clear(); infrastructureAddresses.putAll(values) }
     fun allIpAddresses(): Set<String> = linkedSetOf<String>().apply { addAll(ipAddresses()); infrastructureAddresses.values.forEach(::addAll) }
     fun replaceWhois(entries: List<JSONObject>, error: String?) { whoisEntries.clear(); whoisEntries.addAll(entries); whoisError = error.orEmpty() }
+    fun snapshot(): LookupResult {
+        val copy = LookupResult(domain, elapsedMs, records, resolvers.toSet(), responders.toSet(), ArrayList(whoisEntries), whoisError)
+        copy.replaceInfrastructureAddresses(infrastructureAddresses.toMap())
+        return copy
+    }
     fun whoisResourceCount(): Int = whoisEntries.mapNotNull { entry -> entry.optJSONObject(firstKey(entry))?.optString("resource")?.takeIf(String::isNotBlank) }.toSet().size
     fun insightsFor(record: DisplayRecord): List<IpInsight> {
         val addresses = when (record.type) {
@@ -803,12 +839,15 @@ private class LookupResult(
                 }
                 "Whois" -> payload.optJSONObject("whois")?.let {
                     organization = it.nonNullString("organization", organization)
-                    if (country.isBlank()) country = it.nonNullString("country")
+                    val whoisCountry = it.nonNullString("country")
+                    if (country.isBlank() && usableCountry(whoisCountry)) country = whoisCountry
                     if (prefix.isBlank()) prefix = it.nonNullString("cidr")
                 }
                 "GeoLocation" -> payload.optJSONObject("geo_location")?.optJSONArray("located_resources")?.optJSONObject(0)?.optJSONArray("locations")?.optJSONObject(0)?.let {
-                    country = it.nonNullString("country", country)
-                    city = it.nonNullString("city", city)
+                    val geoCountry = it.nonNullString("country")
+                    if (usableCountry(geoCountry)) country = geoCountry
+                    val geoCity = it.nonNullString("city")
+                    if (geoCity.isNotBlank() && geoCity != "-") city = geoCity
                 }
             }
         }
@@ -890,7 +929,7 @@ private fun recordTarget(type: String, data: JSONObject): String? {
 
 private val infrastructureResolver = Executors.newFixedThreadPool(6)
 
-private fun resolveInfrastructureHosts(targets: Set<String>): Map<String, List<String>> {
+internal fun resolveInfrastructureHosts(targets: Set<String>): Map<String, List<String>> {
     val hosts = targets.filter { it.isNotBlank() }.distinct().take(32)
     if (hosts.isEmpty()) return emptyMap()
     val tasks = hosts.map { host ->
@@ -898,7 +937,7 @@ private fun resolveInfrastructureHosts(targets: Set<String>): Map<String, List<S
             host to InetAddress.getAllByName(host).mapNotNull(InetAddress::getHostAddress).distinct().sorted()
         }
     }
-    return infrastructureResolver.invokeAll(tasks, 10, TimeUnit.SECONDS).mapNotNull { future ->
+    return infrastructureResolver.invokeAll(tasks, 4, TimeUnit.SECONDS).mapNotNull { future ->
         if (future.isCancelled) null else runCatching { future.get() }.getOrNull()
     }.filter { it.second.isNotEmpty() }.toMap(linkedMapOf())
 }
@@ -919,9 +958,15 @@ private fun JSONObject.nonNullString(key: String, fallback: String = ""): String
 private fun JSONArray.nonNullString(index: Int): String =
     opt(index)?.takeUnless { it == JSONObject.NULL }?.toString()?.takeUnless { it == "null" }.orEmpty()
 
+private fun usableCountry(country: String): Boolean {
+    val code = country.trim().uppercase(Locale.ROOT)
+    if (!code.matches(Regex("[A-Z]{2}"))) return false
+    return code !in setOf("XX", "ZZ", "T1", "A1", "A2", "O1")
+}
+
 private fun countryFlag(countryCode: String): String {
     val code = countryCode.uppercase(Locale.ROOT)
-    if (!code.matches(Regex("[A-Z]{2}"))) return "🌐"
+    if (!usableCountry(code)) return "🌐"
     return buildString {
         code.forEach { append(String(Character.toChars(0x1F1E6 + (it.code - 'A'.code)))) }
     }
@@ -937,7 +982,7 @@ private fun normalizeDomain(input: String, context: Context): String {
     return domain
 }
 
-private fun rememberDomain(context: Context, domain: String) {
+internal fun rememberDomain(context: Context, domain: String) {
     val prefs = context.getSharedPreferences("hostlookup", Context.MODE_PRIVATE)
     val values = linkedSetOf(domain).apply { addAll(prefs.getStringSet("recent", emptySet()).orEmpty()) }.take(5).toSet()
     prefs.edit().putStringSet("recent", values).apply()

@@ -69,6 +69,10 @@
     <string name="ripestat_timeout">L’enrichissement RIPEstat a expiré</string>
     <string name="ripestat_kind_error">%1$s pour %2$s : %3$s</string>
 
+    <string name="lookup_channel">Recherches</string>
+    <string name="lookup_notification_body">Comparaison des résolveurs DNS</string>
+    <string name="enrichment_notification_body">Ajout des localisations et des détails réseau</string>
+    <string name="enrichment_loading">Chargement des détails réseau…</string>
     <plurals name="records_count">
         <item quantity="one">%d enregistrement</item>
         <item quantity="other">%d enregistrements</item>

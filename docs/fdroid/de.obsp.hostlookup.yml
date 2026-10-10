@@ -1,12 +1,13 @@
 AntiFeatures:
   TetheredNet:
     en-US: "The app enriches discovered IP addresses with network, location, and ASN
-      information from RIPEstat (including the maxmind-geo-lite endpoint) over HTTPS.
-      The resolver list and RIPEstat endpoint cannot be changed in settings. Providers
-      see your requests and public IP address.\n"
+      information from RIPEstat over HTTPS. When RIPEstat has no country, location
+      falls back to DB-IP and ipwho.is. The resolver list and these endpoints cannot
+      be changed in settings. Providers see your requests and public IP address.\n"
   NonFreeNet:
     en-US: "DNS queries are sent to mhost's fixed list of predefined public resolvers
       over UDP, TCP, DNS-over-TLS, and DNS-over-HTTPS. UDP and TCP queries are unencrypted.
+      Location fallbacks use DB-IP and ipwho.is when RIPEstat has no country.
       The resolver list cannot be changed in settings.\n"
 Categories:
   - Connectivity
@@ -63,6 +64,25 @@ Builds:
       - mv $$OUT$$ unaligned.apk
       - $$reproducible-apk-tools$$/zipalign.py --page-size 16 --pad-like-apksigner
         --replace unaligned.apk $$OUT$$
+  - versionName: 0.2.3
+    versionCode: 5
+    commit: v0.2.3
+    subdir: app
+    sudo:
+      - apt-get update
+      - apt-get install -y gcc libc-dev rustup
+    gradle:
+      - yes
+    srclibs:
+      - reproducible-apk-tools@v0.3.0
+    prebuild:
+      - rustup default 1.95.0
+      - rustup target add aarch64-linux-android x86_64-linux-android
+    ndk: 28.2.13676358
+    postbuild:
+      - mv $$OUT$$ unaligned.apk
+      - $$reproducible-apk-tools$$/zipalign.py --page-size 16 --pad-like-apksigner
+        --replace unaligned.apk $$OUT$$
 
 AllowedAPKSigningKeys: 9e3898a2aa7424df7c08938f0a4250e3b40751f22a12decfdb394590b8fbcc56
 
@@ -82,8 +102,9 @@ MaintainerNotes: |
   scanner as scanignore if flagged.
 
   Network behaviour: DNS queries go to mhost's fixed public resolver list
-  over UDP, TCP, DoT, and DoH.  IP enrichment uses RIPEstat.  See the
-  AntiFeatures section and the README's Privacy section for details.
+  over UDP, TCP, DoT, and DoH.  IP enrichment uses RIPEstat, with DB-IP and
+  ipwho.is only when RIPEstat has no country.  See the AntiFeatures section
+  and the README's Privacy section for details.
 
   Fastlane store metadata is in fastlane/metadata/android/, with
   listings for en-US, en-GB, zh-CN, zh-TW, nl-NL, nl-BE, fr-FR, de-DE,
@@ -98,5 +119,5 @@ MaintainerNotes: |
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
-CurrentVersion: 0.2.2
-CurrentVersionCode: 4
+CurrentVersion: 0.2.3
+CurrentVersionCode: 5

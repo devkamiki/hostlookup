@@ -69,6 +69,10 @@
     <string name="ripestat_timeout">RIPEstat-Anreicherung ist abgelaufen</string>
     <string name="ripestat_kind_error">%1$s für %2$s: %3$s</string>
 
+    <string name="lookup_channel">Nachschlagen</string>
+    <string name="lookup_notification_body">DNS-Anbieter werden verglichen</string>
+    <string name="enrichment_notification_body">Standorte und Netzwerkdetails werden ergänzt</string>
+    <string name="enrichment_loading">Netzwerkdetails werden geladen…</string>
     <plurals name="records_count">
         <item quantity="one">%d Eintrag</item>
         <item quantity="other">%d Einträge</item>

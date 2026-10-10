@@ -1,0 +1,1 @@
+Lookups finish faster and keep running if you leave the app. DNS records appear first, then locations load in the background. Missing RIPEstat countries fall back to DB-IP and ipwho.is.
