@@ -1,0 +1,100 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install the SDK and native build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc libc6-dev cmake python3 git
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager --install \
+            "platforms;android-37" \
+            "build-tools;36.0.0" \
+            "ndk;28.2.13676358"
+          echo "$ANDROID_SDK_ROOT/build-tools/36.0.0" >> "$GITHUB_PATH"
+          echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/28.2.13676358" >> "$GITHUB_ENV"
+
+      - uses: dtolnay/rust-toolchain@1.95.0
+        with:
+          targets: aarch64-linux-android,x86_64-linux-android
+
+      - name: Use the F-Droid cargo home
+        run: |
+          sudo mkdir -p /home/vagrant
+          sudo chown -R "$USER:$USER" /home/vagrant
+          echo "CARGO_HOME=/home/vagrant/.cargo" >> "$GITHUB_ENV"
+
+      - uses: actions/cache@v4
+        with:
+          path: /home/vagrant/.cargo/registry
+          key: cargo-${{ hashFiles('native/Cargo.lock') }}
+
+      - name: Build the unsigned APK
+        run: ./gradlew assembleRelease --no-daemon
+
+      - name: Sign
+        env:
+          HOSTLOOKUP_KEYSTORE_PROPERTIES: ${{ runner.temp }}/keystore.properties
+          KEYSTORE_B64: ${{ secrets.HOSTLOOKUP_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.HOSTLOOKUP_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.HOSTLOOKUP_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.HOSTLOOKUP_KEY_PASSWORD }}
+        run: |
+          umask 077
+          printf '%s' "$KEYSTORE_B64" | base64 -d > "${{ runner.temp }}/release.jks"
+          printf 'storeFile=%s\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' \
+            "${{ runner.temp }}/release.jks" \
+            "$STORE_PASSWORD" \
+            "$KEY_ALIAS" \
+            "$KEY_PASSWORD" \
+            > "$HOSTLOOKUP_KEYSTORE_PROPERTIES"
+          scripts/sign-release.sh
+
+      - name: Check the signing key and version
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          gradle_version="$(sed -n 's/.*versionName = "\(.*\)"/\1/p' app/build.gradle.kts | head -n1)"
+          test "$gradle_version" = "$version"
+          apk="app/build/outputs/apk/release/HostLookup-${version}.apk"
+          test -f "$apk"
+          digest="$(apksigner verify --print-certs "$apk" | awk -F': ' '/SHA-256 digest/ { print $2; exit }')"
+          test "$digest" = "9e3898a2aa7424df7c08938f0a4250e3b40751f22a12decfdb394590b8fbcc56"
+
+      - name: Publish the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          apk="app/build/outputs/apk/release/HostLookup-${version}.apk"
+          notes="docs/releases/${version}.md"
+          if [[ -f "$notes" ]]; then
+            gh release create "$GITHUB_REF_NAME" "$apk" \
+              --title "HostLookup ${version}" \
+              --notes-file "$notes" \
+              --verify-tag
+          else
+            gh release create "$GITHUB_REF_NAME" "$apk" \
+              --title "HostLookup ${version}" \
+              --generate-notes \
+              --verify-tag
+          fi
